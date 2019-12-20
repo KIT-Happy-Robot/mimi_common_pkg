@@ -56,10 +56,11 @@ class LocalizeObjectAS():
         result = self.obj_recog(self.data.target)
         while not rospy.is_shutdown() and result.existence == False:
             self.kc.angularControl(0.3)
+            rospy.sleep(0.5)
             result = self.obj_recog(self.data.target)
             if time.time() > self.timeout:
                 return False
-        #self.person_flg = False
+        self.person_flg = False
         return True
 
     def execute(self, goal):

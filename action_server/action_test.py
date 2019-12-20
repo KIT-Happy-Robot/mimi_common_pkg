@@ -18,10 +18,9 @@ from common_function import *
 
 def main():
     rospy.loginfo('Start Test')
-    #approachPersonAC()
+    approachPersonAC()
     #enterTheRoomAC(0.5)
     #localizeObjectAC('person')
-    speak('Helloi oonishi reitaro')
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
