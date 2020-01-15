@@ -61,11 +61,15 @@ class GetCootdinate(smach.State):
                 outcomes = ['get',
                             'not_get'],
                 output_keys = ['coord_out'])
-        #Publisher
-        self.pub_coord_req = rospy.Publisher('/move_close_human/human_detect_flag', Bool, queue_size = 1) 
-        #Subscriber
-        rospy.Subscriber('/get_distance_pcl/Coordinate_xyz', Coordinate_xyz, self.personCoordCB)
-        rospy.Subscriber('/odom', Odometry, self.orientationCB)
+        # Publisher
+        self.pub_coord_req = rospy.Publisher('/move_close_human/human_detect_flag',
+                                             Bool,
+                                             queue_size = 1) 
+        # Subscriber
+        self.sub_pcl = rospy.Subscriber('/get_distance_pcl/Coordinate_xyz',
+                                        Coordinate_xyz,
+                                        self.personCoordCB)
+        self.sub_odom = rospy.Subscriber('/odom', Odometry, self.orientationCB)
 
         self.person_coord_x = 0.00
         self.person_coord_y = 0.00
@@ -193,9 +197,5 @@ def main():
     
 
 if __name__ == '__main__':
-    try:
-        rospy.init_node('approach_person', anonymous = True)
-        main()
-    except rospy.ROSInterruptException:
-        rospy.loginfo('**Interrupted**')
-        pass
+    rospy.init_node('approach_person', anonymous = True)
+    main()

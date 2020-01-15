@@ -7,9 +7,9 @@
 # Memo: ドアが閉まっていることを前提条件とする
 #--------------------------------------------------------------------
 
-#Python関係
+# Python
 import sys
-#ROS関係
+# ROS
 import rospy
 import actionlib
 from mimi_common_pkg.msg import EnterTheRoomAction, EnterTheRoomResult
@@ -22,16 +22,16 @@ from common_function import *
 
 class EnterTheRoomAS():
     def __init__(self):
-        #Subscriber
+        # Subscriber
         self.laser_sub = rospy.Subscriber('/scan', LaserScan, self.laserCB)
-        #ActionServer
+        # ActionServer
         self.sas = actionlib.SimpleActionServer(
                 'enter_the_room',
                 EnterTheRoomAction,
                 execute_cb = self.execute,
                 auto_start = False)
 
-        self.kc = KobukiControl()
+        self.bc = BaseCarrier()
         self.result = EnterTheRoomResult()
         self.front_laser_dist = 999.9
 
@@ -41,7 +41,7 @@ class EnterTheRoomAS():
         self.front_laser_dist = receive_msg.ranges[359]
 
     def detection(self, receive_msg):
-        #-0.05は固定データ
+        # -0.05は固定データ
         target_distance = self.front_laser_dist + receive_msg - 0.05
         speak("Please open the door")
         rospy.loginfo('Start detection')
@@ -56,7 +56,7 @@ class EnterTheRoomAS():
             rospy.loginfo('Start EnterTheRoom')
             distance = self.detection(goal.distance)
             speak('Thank you')
-            self.kc.moveDistance(distance)
+            self.bc.translateDist(distance)
             self.result.data = True
             self.sas.set_succeeded(self.result)
             rospy.loginfo('Finish EnterTheRoom')
