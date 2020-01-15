@@ -39,14 +39,14 @@ class Localization(smach.State):
     def execute(self, userdata):
         try:
             rospy.loginfo('Executing state LOCALIZATION')
-            result = localizePersonAC()
-            result = 'success'
-            if result == 'success':
-                speak('I found person')
+            result = localizeObjectAC('person')
+            print result
+            if result == True:
+                #speak('I found person')
                 rospy.loginfo('Localization Succes')
                 return 'localize'
             else:
-                speak('I can`t find person')
+                #speak('I can`t find person')
                 rospy.loginfo('Localization Failed')
                 return 'not_localize'
         except rospy.ROSInterruptException:
@@ -88,6 +88,7 @@ class GetCootdinate(smach.State):
     def execute(self, userdata):
         try:
             rospy.loginfo('Executing state GET_COORDINATE')
+            rospy.sleep(1.0)
             self.pub_coord_req.publish(True)
             while not rospy.is_shutdown() and self.person_coord_x == 0.00:
                 rospy.loginfo('Waiting for coordinate')
@@ -123,20 +124,20 @@ class Navigation(smach.State):
             ap_result = userdata.result_message
             coord_list = userdata.coord_in
             m6Control(0.3)
-            rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(0.5))
+            rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(0.90))
             print rosparam.get_param('/move_base/DWAPlannerROS/xy_goal_tolerance')
             rospy.sleep(0.1)
             result = navigationAC(coord_list)
             print result
-            if self.result == True:
+            if result == True:
                 m6Control(0.4)
-                speak('I came close to person')
+                ##speak('I came close to person')
                 #ap_result = result
                 #userdata.result_message.data = ap_result
                 userdata.result_message.data = self.result
                 return 'arrive'
             else:
-                speak('I can`t came close to person')
+                #speak('I can`t came close to person')
                 #ap_result = result
                 #userdata.result_message.data = ap_result
                 userdata.result_message.data = self.result

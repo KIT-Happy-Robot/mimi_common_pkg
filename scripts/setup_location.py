@@ -99,7 +99,7 @@ class Saving(smach.State):
         try:
             rospy.loginfo('Executing state: SAVING')
             rospy.set_param('/location_dict', userdata.saving_in_data)
-            rosparam.dump_params('/home/athome/catkin_ws/src/mimi_common_pkg/config/location_dict.yaml', '/location_dict')
+            rosparam.dump_params('/home/athome/catkin_ws/src/mimi_common_pkg/config/demo.yaml', '/location_dict')
             rospy.loginfo('Saving complete')
             return 'save_finish'
         except rospy.ROSInterruptException:

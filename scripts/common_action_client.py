@@ -87,11 +87,11 @@ def localizeObjectAC(receive_msg):
         result = ac.get_result()
         print result
         while not rospy.is_shutdown():
-            if result.data == 'success':
+            if result.data == True:
                 rospy.loginfo('Success LocalizeObject')
-                ac.cancel_goal()
+                #ac.cancel_goal()
                 return True
-            elif result.data == 'failed':
+            else:
                 rospy.loginfo('Failed LocalizeObject')
                 ac.cancel_goal()
                 return False
@@ -130,8 +130,8 @@ def navigationAC(coord_list):
             elif state == 3:
                 rospy.loginfo('Navigation success!!')
                 ac.cancel_goal()
-                return True
                 state = 0
+                return True
             elif state == 4:
                 if count == 100:
                     count = 0
