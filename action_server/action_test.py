@@ -16,16 +16,16 @@ sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_action_client import *
 from common_function import *
 
+bc = BaseCarrier()
+
 def main():
     rospy.loginfo('Start Test')
-    approachPersonAC()
+    # approachPersonAC()
     #enterTheRoomAC(0.5)
     #localizeObjectAC('person')
+    bc.angleRotation(90) 
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
-    try:
-        rospy.init_node('action_test', anonymous = True)
-        main()
-    except rospy.ROSInterruptException:
-        pass
+    rospy.init_node('action_test', anonymous = True)
+    main()
