@@ -2,4 +2,7 @@
     <node pkg="mimi_common_pkg" name="detect_door_open" type="detect_door_open.py"/>
     <node pkg="mimi_common_pkg" name="find_person" type="find_person.py"/>
     <node pkg="mimi_common_pkg" name="approach_person" type="approach_person.py"/>
+    <node pkg="mimi_common_pkg" name="setup_location" type="setup_location.py">
+      <rosparam file="$(find mimi_common_pkg)/config/location_dict.yaml" command="load" ns="location_dict" />
+    </node>
 </launch>
