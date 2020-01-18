@@ -59,25 +59,29 @@ class BaseCarrier():
                 self.pub_twist.publish(self.twist_value)
                 end_time = time.time()
                 rate.sleep()
+            self.twist_value.linear.x = 0.0
+            self.pub_twist.publish(self.twist_value)
         except rospy.ROSInterruptException:
             rospy.loginfo('**Interrupted**')
             pass
 
-    #指定した角度(±360度の範囲)だけ回転
+    # 指定した角度(±360度の範囲)だけ回転
     def angleRotation(self, degree):
         try:
-            target_time = abs(degree*0.0235)
+            target_time = abs(degree*0.0235) 
             if degree >= 0:
                 self.twist_value.angular.z = 1.0
             elif degree < 0:
                 self.twist_value.angular.z = -1.0
-            rate = rospy.Rate(500)
+            rate = rospy.Rate(100)
             start_time = time.time()
             end_time = time.time()
             while end_time - start_time <= target_time:
-                self.pub_cmd_vel_mux.publish(self.twist_value)
-                end_time_time = time.time()
+                self.pub_twist.publish(self.twist_value)
+                end_time = time.time()
                 rate.sleep()
+            self.twist_value.angular.z = 0.0
+            self.pub_twist.publish(self.twist_value)
         except rospy.ROSInterruptException:
             rospy.loginfo('**Interrupted**')
             pass
