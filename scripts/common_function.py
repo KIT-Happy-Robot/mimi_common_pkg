@@ -59,6 +59,8 @@ class BaseCarrier():
                 self.pub_twist.publish(self.twist_value)
                 end_time = time.time()
                 rate.sleep()
+            self.twist_value.linear.x = 0.0
+            self.pub_twist.publish(self.twist_value)
         except rospy.ROSInterruptException:
             rospy.loginfo('**Interrupted**')
             pass
@@ -78,6 +80,8 @@ class BaseCarrier():
                 self.pub_twist.publish(self.twist_value)
                 end_time = time.time()
                 rate.sleep()
+            self.twist_value.angular.z = 0.0
+            self.pub_twist.publish(self.twist_value)
         except rospy.ROSInterruptException:
             rospy.loginfo('**Interrupted**')
             pass
