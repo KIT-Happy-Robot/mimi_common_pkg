@@ -68,11 +68,11 @@ class BaseCarrier():
     # 指定した角度(±360度の範囲)だけ回転
     def angleRotation(self, degree):
         try:
-            target_time = abs(degree*0.0235) 
+            target_time = abs(degree*0.023) 
             if degree >= 0:
-                self.twist_value.angular.z = 1.0
+                self.twist_value.angular.z = 1.4
             elif degree < 0:
-                self.twist_value.angular.z = -1.0
+                self.twist_value.angular.z = -1.4
             rate = rospy.Rate(100)
             start_time = time.time()
             end_time = time.time()

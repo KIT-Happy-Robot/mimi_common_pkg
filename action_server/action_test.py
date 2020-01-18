@@ -23,7 +23,7 @@ def main():
     # approachPersonAC()
     #enterTheRoomAC(0.5)
     #localizeObjectAC('person')
-    bc.angleRotation(30) 
+    bc.angleRotation(90) 
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
