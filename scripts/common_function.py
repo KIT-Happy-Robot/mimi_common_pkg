@@ -88,10 +88,8 @@ class BaseCarrier():
 
 
 # 文字列をパラメータの/location_dictから検索して位置座標を返す
-def searchLocationName(target_file, target_name):
-    location_dict = rosparam.get(target_name)
-    #以下の処理はLaunch立ち上げ時に行いたい
-    # location_dictのyamlファイルを読み込む
+def searchLocationName(target_param, target_name):
+    location_dict = rosparam.get(target_param)
     # f = open('/home/athome/catkin_ws/src/mimi_common_pkg/config/' + target_file + '.yaml')
     # location_dict = load(f)
     # f.close()
