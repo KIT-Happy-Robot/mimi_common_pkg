@@ -69,9 +69,9 @@ class BaseCarrier():
     def angleRotation(self, degree):
         try:
             while degree > 180:
-                degree = degree - 90
+                degree = degree - 360
             while degree < -180:
-                degree = degree + 90
+                degree = degree + 360
             angular_speed = 90.0 #[deg/s]
             target_time = abs(1.76899*(degree /angular_speed))  #[s]
             if degree >= 0:
