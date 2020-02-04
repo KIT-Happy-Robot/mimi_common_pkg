@@ -14,7 +14,7 @@ import sys
 # ROS
 import rospy
 import rosparam
-from std_msgs.msg import String, Float64
+from std_msgs.msg import String, Float64, Int32
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from gcp_texttospeech.srv import TTS

@@ -20,9 +20,10 @@ bc = BaseCarrier()
 
 def main():
     rospy.loginfo('Start Test')
-    result = searchLocationName('location_dict', 'shelf') 
+   # result = searchLocationName('location_dict', 'shelf') 
     #localizeObjectAC('person')
-    # bc.angleRotation(90) 
+    angle = input()
+    bc.angleRotation(angle) 
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
