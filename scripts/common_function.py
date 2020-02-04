@@ -68,12 +68,17 @@ class BaseCarrier():
     # 指定した角度(±360度の範囲)だけ回転
     def angleRotation(self, degree):
         try:
-            target_time = abs(degree*0.0235) 
+            while degree > 180:
+                degree = degree - 360
+            while degree < -180:
+                degree = degree + 360
+            angular_speed = 90.0 #[deg/s]
+            target_time = abs(1.76899*(degree /angular_speed))  #[s]
             if degree >= 0:
-                self.twist_value.angular.z = 1.0
+                self.twist_value.angular.z = (angular_speed * 3.14159263 / 180.0) #rad
             elif degree < 0:
-                self.twist_value.angular.z = -1.0
-            rate = rospy.Rate(100)
+                self.twist_value.angular.z = -(angular_speed * 3.14159263 / 180.0) #rad
+            rate = rospy.Rate(500)
             start_time = time.time()
             end_time = time.time()
             while end_time - start_time <= target_time:
@@ -89,10 +94,7 @@ class BaseCarrier():
 
 # 文字列をパラメータの/location_dictから検索して位置座標を返す
 def searchLocationName(target_param, target_name):
-    location_dict = rosparam.get(target_param)
-    # f = open('/home/athome/catkin_ws/src/mimi_common_pkg/config/' + target_file + '.yaml')
-    # location_dict = load(f)
-    # f.close()
+    location_dict = rosparam.get_param(target_param)
     if target_name in location_dict:
         print location_dict[target_name]
         return location_dict[target_name]

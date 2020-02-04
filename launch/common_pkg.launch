@@ -1,5 +1,5 @@
 <launch>
-    <node pkg="mimi_common_pkg" name="detect_door_open" type="detect_door_open.py"/>
+    <node pkg="mimi_common_pkg" name="enter_the_room" type="enter_the_room.py"/>
     <node pkg="mimi_common_pkg" name="localize_object" type="localize_object.py"/>
     <node pkg="mimi_common_pkg" name="approach_person" type="approach_person.py"/>
     <node pkg="mimi_common_pkg" name="setup_location" type="setup_location.py">

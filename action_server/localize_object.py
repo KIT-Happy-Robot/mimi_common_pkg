@@ -60,12 +60,8 @@ class LocalizeObjectAS():
         result = self.obj_recog(self.data.target)
         self.twist_value.angular.z = 0.3
         while not rospy.is_shutdown() and result.existence == False:
-<<<<<<< HEAD
             self.pub_twist.publish(self.twist_value)
-=======
-            self.kc.angularControl(0.3)
             rospy.sleep(0.5)
->>>>>>> 06c5595b190b0bcf18e6ef1c4fbe970d07dc0295
             result = self.obj_recog(self.data.target)
             if time.time() > self.timeout:
                 return False
