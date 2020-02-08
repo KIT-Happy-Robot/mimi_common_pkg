@@ -27,7 +27,7 @@ sys.path.insert(0, '/home/issei/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_function import *
 
 
-class determineAction(smach.State):
+class DetermineAction(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['move', 'mani', 'search', 'speak', 'all_finish'],
@@ -56,7 +56,7 @@ class determineAction(smach.State):
             return 'all_finish'
 
 
-class move(smach.State):
+class Move(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['move_finish', 'move_failed'],
@@ -87,7 +87,7 @@ class move(smach.State):
             return 'move_finish'
 
 
-class mani(smach.State):
+class Mani(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['mani_finish', 'mani_failed'],
@@ -127,7 +127,7 @@ class mani(smach.State):
             return 'mani_failed'
 
 
-class search(smach.State):
+class Search(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['search_finish', 'search_failed'],
@@ -148,7 +148,7 @@ class search(smach.State):
             return 'search_failed'
 
 
-class speak(smach.State):
+class Speak(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['speak_finish', 'speak_failed'],
@@ -177,7 +177,7 @@ def main():
     with sm_top:
         StateMachine.add(
                 'DETERMINE_ACTION',
-                determineAction(),
+                DetermineAction(),
                 transitions = {'move':'MOVE',
                                'mani':'MANI',
                                'search':'SEARCH',
@@ -192,7 +192,7 @@ def main():
 
         StateMachine.add(
                 'MOVE',
-                move(),
+                Move(),
                 transitions = {'move_finish':'DETERMINE_ACTION',
                                'move_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
@@ -202,7 +202,7 @@ def main():
 
         StateMachine.add(
                 'MANI',
-                mani(),
+                Mani(),
                 transitions = {'mani_finish':'DETERMINE_ACTION',
                                'mani_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
@@ -212,7 +212,7 @@ def main():
 
         StateMachine.add(
                 'SEARCH',
-                search(),
+                Search(),
                 transitions = {'search_finish':'DETERMINE_ACTION',
                                'search_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
@@ -222,7 +222,7 @@ def main():
 
         StateMachine.add(
                 'SPEAK',
-                speak(),
+                Speak(),
                 transitions = {'speak_finish':'DETERMINE_ACTION',
                                'speak_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
