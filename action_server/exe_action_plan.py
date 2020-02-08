@@ -27,7 +27,7 @@ sys.path.insert(0, '/home/issei/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_function import *
 
 
-class DetermineAction(smach.State):
+class DecideAction(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                              outcomes = ['move', 'mani', 'search', 'speak', 'all_finish'],
@@ -49,8 +49,6 @@ class DetermineAction(smach.State):
             return self.action_state[a_name]
         else:
             rospy.loginfo('all success')
-            # userdata.goal_out.action = []
-            # userdata.goal_out.data = []
             userdata.a_num_out = 0
             userdata.result_message.data = 'success'
             return 'all_finish'
@@ -176,8 +174,8 @@ def main():
     sm_top.userdata.action_num = 0
     with sm_top:
         StateMachine.add(
-                'DETERMINE_ACTION',
-                DetermineAction(),
+                'DECIDE_ACTION',
+                DecideAction(),
                 transitions = {'move':'MOVE',
                                'mani':'MANI',
                                'search':'SEARCH',
@@ -193,7 +191,7 @@ def main():
         StateMachine.add(
                 'MOVE',
                 Move(),
-                transitions = {'move_finish':'DETERMINE_ACTION',
+                transitions = {'move_finish':'DECIDE_ACTION',
                                'move_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
                              'data_in':'data_name',
@@ -203,7 +201,7 @@ def main():
         StateMachine.add(
                 'MANI',
                 Mani(),
-                transitions = {'mani_finish':'DETERMINE_ACTION',
+                transitions = {'mani_finish':'DECIDE_ACTION',
                                'mani_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
                              'data_in':'data_name',
@@ -213,7 +211,7 @@ def main():
         StateMachine.add(
                 'SEARCH',
                 Search(),
-                transitions = {'search_finish':'DETERMINE_ACTION',
+                transitions = {'search_finish':'DECIDE_ACTION',
                                'search_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
                              'data_in':'data_name',
@@ -223,7 +221,7 @@ def main():
         StateMachine.add(
                 'SPEAK',
                 Speak(),
-                transitions = {'speak_finish':'DETERMINE_ACTION',
+                transitions = {'speak_finish':'DECIDE_ACTION',
                                'speak_failed':'action_failed'},
                 remapping = {'action_in':'action_name',
                              'data_in':'data_name',
