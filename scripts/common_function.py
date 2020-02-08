@@ -16,18 +16,18 @@ import rospy
 import rosparam
 from std_msgs.msg import String, Float64
 from sensor_msgs.msg import LaserScan
-from geometry_msgs.msg import Twist
-from gcp_texttospeech.srv import TTS
+# from geometry_msgs.msg import Twist
+# from gcp_texttospeech.srv import TTS
 
 # Grobal
 pub_speak = rospy.Publisher('/tts', String, queue_size = 1)
 pub_m6 = rospy.Publisher('/m6_controller/command', Float64, queue_size = 1)
-tts_srv = rospy.ServiceProxy('/tts', TTS)
+# tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 # 話す
-def speak(phrase):
-    tts_srv(phrase)
-
+# def speak(phrase):
+#     tts_srv(phrase)
+#
 
 # m6(首のサーボモータ)の制御
 def m6Control(value):
