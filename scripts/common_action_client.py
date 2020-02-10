@@ -19,30 +19,6 @@ from mimi_common_pkg.msg import *
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_function import *
 
-def enterTheRoomAC(receive_msg):
-    try:
-        rospy.loginfo("Start EnterTheRoom")
-        ac = actionlib.SimpleActionClient('enter_the_room', EnterTheRoomAction)
-        ac.wait_for_server()
-
-        goal = EnterTheRoomGoal()
-        goal.distance = receive_msg
-
-        ac.send_goal(goal)
-        ac.wait_for_result()
-    
-        result = ac.get_result()
-        if result.data is True:
-            rospy.loginfo("Success EnterTheRoom")
-            ac.cancel_goal()
-            return True
-        else:
-            rospy.loginfo("Failed EnterTheRoom")
-            ac.cancel_goal()
-            return False
-    except rospy.ROSInterruptException:
-        pass
-
 
 def approachPersonAC():
     try:
@@ -70,6 +46,55 @@ def approachPersonAC():
             return False
     except rospy.ROSInterruptException:
         pass
+
+
+def enterTheRoomAC(receive_msg):
+    try:
+        rospy.loginfo("Start EnterTheRoom")
+        ac = actionlib.SimpleActionClient('enter_the_room', EnterTheRoomAction)
+        ac.wait_for_server()
+
+        goal = EnterTheRoomGoal()
+        goal.distance = receive_msg
+
+        ac.send_goal(goal)
+        ac.wait_for_result()
+    
+        result = ac.get_result()
+        if result.data is True:
+            rospy.loginfo("Success EnterTheRoom")
+            ac.cancel_goal()
+            return True
+        else:
+            rospy.loginfo("Failed EnterTheRoom")
+            ac.cancel_goal()
+            return False
+    except rospy.ROSInterruptException:
+        pass
+
+
+def exeActionPlanAC(action_list, data_list):
+        ac = actionlib.SimpleActionClient('exe_action_plan', ExeActionPlanAction)
+        ac.wait_for_server()
+
+        goal = ExeActionPlanGoal()
+        goal.action = action_list
+        goal.data = data_list
+
+        ac.send_goal(goal)
+        ac.wait_for_result()
+
+        result = ac.get_result()
+        if result.data == 'success':
+            rospy.loginfo("Success ExeActionPlan")
+            rospy.sleep(0.3)
+            ac.cancel_goal()
+            return True
+        else:
+            rospy.loginfo("Failed ExeActionPlan")
+            rospy.sleep(0.3)
+            ac.cancel_goal()
+            return False
 
 
 def localizeObjectAC(receive_msg):
