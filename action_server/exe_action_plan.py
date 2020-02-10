@@ -46,7 +46,6 @@ class DecideAction(smach.State):
         if a_count < len(a_plan.action):
             userdata.a_action_out = a_plan.action[a_count]
             userdata.a_data_out = a_plan.data[a_count]
-            print a_plan.data[a_count]
             a_name = a_plan.action[a_count]
             return self.action_state[a_name]
         else:
@@ -70,14 +69,12 @@ class Move(smach.State):
         a_count = userdata.num_in
         name = userdata.action_in
         data = userdata.data_in
-        print data
         if name == 'go':
             coord_list = searchLocationName('location_dict', data)
-            self.pub_location.publish(data)
             speak('I move to ' + data)
             result = navigationAC(coord_list)
-            result = True
             if result:
+                self.pub_location.publish(data)
                 userdata.a_num_out = a_count + 1 
                 return 'move_finish'
             else:
@@ -105,20 +102,16 @@ class Mani(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'grasp':
-            print 'grasp'
             # obj = self.object_list[data]
             obj = 'cup'
             print obj
+            speak('I grasp ' + obj)
             result = self.grasp_srv(obj).result
-            result = True
         elif name == 'place':
-            print 'place'
             result == self.arm_srv(name).result
-            result = True
         elif name == 'give':
-            print 'give'
+            speak('Here you are')
             result = self.arm_srv(name).result
-            result = True
         rospy.loginfo('Result is ' + str(result))
         if result:
             userdata.a_num_out = a_count + 1 
@@ -139,8 +132,8 @@ class Search(smach.State):
         rospy.loginfo('Executing state: SEARCH')
         a_count = userdata.num_in
         data = userdata.data_in
-        # result = localizeObjectAC(data)
-        result = True
+        result = localizeObjectAC(data)
+        speak('I search ' + data)
         if result:
             userdata.a_num_out = a_count + 1 
             return 'search_finish'
@@ -160,7 +153,6 @@ class Speak(smach.State):
         rospy.loginfo('Executing state: SPEAK')
         a_count = userdata.num_in
         data = userdata.data_in
-        print data
         speak(data)
         userdata.a_num_out = a_count + 1 
         return 'speak_finish'
