@@ -64,6 +64,7 @@ add_service_files(
   FILES
   ManipulateSrv.srv
   RecognizeExistence.srv
+  LocationSetup.srv
 )
 
 ## Generate actions in the 'action' folder

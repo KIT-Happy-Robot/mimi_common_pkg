@@ -9,6 +9,7 @@
 
 #Python関係ライブラリ
 import sys
+import subprocess
 #ROS関係ライブラリ
 import rospy
 
@@ -22,8 +23,9 @@ def main():
     rospy.loginfo('Start Test')
    # result = searchLocationName('location_dict', 'shelf') 
     #localizeObjectAC('person')
-    angle = input()
-    bc.angleRotation(angle) 
+    sp = subprocess
+    sp.Popen(['roslaunch','turtlebot_bringup','minimal.launch'])
+    print 'A'
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
