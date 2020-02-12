@@ -94,7 +94,7 @@ class Mani(smach.State):
         self.grasp_srv = rospy.ServiceProxy('/manipulation', ManipulateSrv)
         self.arm_srv = rospy.ServiceProxy('/change_arm_pose', ManipulateSrv)
         # Param
-        self.object_list = rosparam.get_param('/object_mapping')
+        self.object_dict = rosparam.get_param('/object_mapping')
  
     def execute(self, userdata):
         rospy.loginfo('Executing state: MANI')
@@ -102,7 +102,7 @@ class Mani(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'grasp':
-            # obj = self.object_list[data]
+            # obj = self.object_dict[data]
             obj = 'cup'
             print obj
             speak('I grasp ' + obj)

@@ -21,56 +21,50 @@ from common_function import *
 
 
 def approachPersonAC():
-    try:
-        rospy.loginfo("Start ApproachPerson")
-        ac = actionlib.SimpleActionClient('approach_person', ApproachPersonAction)
-        ac.wait_for_server()
+    rospy.loginfo("Start ApproachPerson")
+    ac = actionlib.SimpleActionClient('approach_person', ApproachPersonAction)
+    ac.wait_for_server()
 
-        goal = ApproachPersonGoal()
-        goal.data = 'start'
+    goal = ApproachPersonGoal()
+    goal.data = 'start'
 
-        ac.send_goal(goal)
-        ac.wait_for_result()
+    ac.send_goal(goal)
+    ac.wait_for_result()
 
-        result = ac.get_result()
-        print result
-        if result.data == 'success':
-            rospy.loginfo("Success ApproachPerson")
-            ac.cancel_goal()
-            return True
-        elif result.data == 'aborted':
-            rospy.loginfo("Aborted ApproachPerson")
-            ac.cancel_goal()
-            return False
-        else:
-            return False
-    except rospy.ROSInterruptException:
-        pass
+    result = ac.get_result()
+    print result
+    if result.data == 'success':
+        rospy.loginfo("Success ApproachPerson")
+        ac.cancel_goal()
+        return True
+    elif result.data == 'aborted':
+        rospy.loginfo("Aborted ApproachPerson")
+        ac.cancel_goal()
+        return False
+    else:
+        return False
 
 
 def enterTheRoomAC(receive_msg):
-    try:
-        rospy.loginfo("Start EnterTheRoom")
-        ac = actionlib.SimpleActionClient('enter_the_room', EnterTheRoomAction)
-        ac.wait_for_server()
+    rospy.loginfo("Start EnterTheRoom")
+    ac = actionlib.SimpleActionClient('enter_the_room', EnterTheRoomAction)
+    ac.wait_for_server()
 
-        goal = EnterTheRoomGoal()
-        goal.distance = receive_msg
+    goal = EnterTheRoomGoal()
+    goal.distance = receive_msg
 
-        ac.send_goal(goal)
-        ac.wait_for_result()
-    
-        result = ac.get_result()
-        if result.data is True:
-            rospy.loginfo("Success EnterTheRoom")
-            ac.cancel_goal()
-            return True
-        else:
-            rospy.loginfo("Failed EnterTheRoom")
-            ac.cancel_goal()
-            return False
-    except rospy.ROSInterruptException:
-        pass
+    ac.send_goal(goal)
+    ac.wait_for_result()
+
+    result = ac.get_result()
+    if result.data is True:
+        rospy.loginfo("Success EnterTheRoom")
+        ac.cancel_goal()
+        return True
+    else:
+        rospy.loginfo("Failed EnterTheRoom")
+        ac.cancel_goal()
+        return False
 
 
 def exeActionPlanAC(action_list, data_list):
@@ -98,30 +92,27 @@ def exeActionPlanAC(action_list, data_list):
 
 
 def localizeObjectAC(receive_msg):
-    try: 
-        rospy.loginfo('Start LocalizeObject')
-        ac = actionlib.SimpleActionClient('localize_object', LocalizeObjectAction)
-        ac.wait_for_server()
+    rospy.loginfo('Start LocalizeObject')
+    ac = actionlib.SimpleActionClient('localize_object', LocalizeObjectAction)
+    ac.wait_for_server()
 
-        goal = LocalizeObjectGoal()
-        goal.data = receive_msg
+    goal = LocalizeObjectGoal()
+    goal.data = receive_msg
 
-        ac.send_goal(goal)
-        ac.wait_for_result()
+    ac.send_goal(goal)
+    ac.wait_for_result()
 
-        result = ac.get_result()
-        print result
-        while not rospy.is_shutdown():
-            if result.data == True:
-                rospy.loginfo('Success LocalizeObject')
-                #ac.cancel_goal()
-                return True
-            else:
-                rospy.loginfo('Failed LocalizeObject')
-                ac.cancel_goal()
-                return False
-    except rospy.ROSInterruptException:
-        pass
+    result = ac.get_result()
+    print result
+    while not rospy.is_shutdown():
+        if result.data == True:
+            rospy.loginfo('Success LocalizeObject')
+            #ac.cancel_goal()
+            return True
+        else:
+            rospy.loginfo('Failed LocalizeObject')
+            ac.cancel_goal()
+            return False
 
 
 def navigationAC(coord_list):
