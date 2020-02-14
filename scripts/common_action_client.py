@@ -32,16 +32,13 @@ def approachPersonAC():
     ac.wait_for_result()
 
     result = ac.get_result()
-    print result
     if result.data == 'success':
-        rospy.loginfo("Success ApproachPerson")
+        rospy.loginfo('Success ApproachPerson')
         ac.cancel_goal()
         return True
-    elif result.data == 'aborted':
-        rospy.loginfo("Aborted ApproachPerson")
-        ac.cancel_goal()
-        return False
     else:
+        rospy.loginfo('Failed ApproachPerson')
+        ac.cancel_goal()
         return False
 
 
@@ -57,7 +54,7 @@ def enterTheRoomAC(receive_msg):
     ac.wait_for_result()
 
     result = ac.get_result()
-    if result.data is True:
+    if result.data:
         rospy.loginfo("Success EnterTheRoom")
         ac.cancel_goal()
         return True
@@ -103,9 +100,8 @@ def localizeObjectAC(receive_msg):
     ac.wait_for_result()
 
     result = ac.get_result()
-    print result
     while not rospy.is_shutdown():
-        if result.data == True:
+        if result.data:
             rospy.loginfo('Success LocalizeObject')
             #ac.cancel_goal()
             return True

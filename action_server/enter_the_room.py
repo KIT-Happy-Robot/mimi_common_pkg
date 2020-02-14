@@ -43,19 +43,16 @@ class EnterTheRoomAS():
     def detection(self, receive_msg):
         # -0.05は固定データ
         target_distance = self.front_laser_dist + receive_msg - 0.05
-        speak("Please open the door")
-        rospy.loginfo('Start detection')
-        rospy.loginfo('Waiting for the door to open')
+        speak('Please open the door')
         while self.front_laser_dist <= target_distance:
             rospy.sleep(1.0)
-        rospy.loginfo('Door opened')
+        speak('Thank you')
         return target_distance
 
     def execute(self, goal):
         try:
             rospy.loginfo('Start EnterTheRoom')
             distance = self.detection(goal.distance)
-            speak('Thank you')
             self.bc.translateDist(distance)
             self.result.data = True
             self.sas.set_succeeded(self.result)
