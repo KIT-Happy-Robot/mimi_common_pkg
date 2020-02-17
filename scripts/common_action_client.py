@@ -149,7 +149,7 @@ def navigationAC(coord_list):
                 state = 0
                 return True
             elif state == 4:
-                if count == 100:
+                if count == 10:
                     count = 0
                     rospy.loginfo('Navigation Failed')
                     ac.cancel_goal()

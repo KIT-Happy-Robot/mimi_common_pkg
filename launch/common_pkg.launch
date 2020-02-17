@@ -2,7 +2,7 @@
 
     <rosparam file="$(find mimi_common_pkg)/config/object_mapping.yaml" command="load" ns="object_mapping" />
     <rosparam file="$(find mimi_common_pkg)/config/action_state.yaml" command="load" ns="action_state" />
-    <rosparam file="$(find mimi_common_pkg)/config/location_dict.yaml" command="load" ns="location_dict" />
+    <rosparam file="$(find mimi_common_pkg)/config/demo.yaml" command="load" ns="demo" />
 
     <!-- node pkg="mimi_common_pkg" name="enter_the_room" type="enter_the_room.py"/ -->
     <!-- node pkg="mimi_common_pkg" name="localize_object" type="localize_object.py"/ -->
