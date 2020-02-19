@@ -85,8 +85,8 @@ class BaseCarrier():
 
 
 # 文字列をパラメータから検索して位置座標を返す
-def searchLocationName(target_param, target_name):
-    location_dict = rosparam.get_param(target_param)
+def searchLocationName(target_name):
+    location_dict = rosparam.get_param('/location_dict')
     if target_name in location_dict:
         print location_dict[target_name]
         return location_dict[target_name]
