@@ -52,9 +52,10 @@ class AddLocation():
             return True
 
     def saveLocation(self, param_name):
-        rospy.set_param(param_name, self.location_dict)
+        rospy.set_param('location_dict', self.location_dict)
         rosparam.dump_params('/home/athome/catkin_ws/src/mimi_common_pkg/config/'
-                             + param_name + '.yaml', param_name)
+                             + param_name + '.yaml', '/location_dict')
+        print rosparam.get_param('location_dict')
         rospy.loginfo('Saving complete')
         return True
 

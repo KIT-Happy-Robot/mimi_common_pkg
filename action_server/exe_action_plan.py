@@ -70,7 +70,7 @@ class Move(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'go':
-            coord_list = searchLocationName('location_dict', data)
+            coord_list = searchLocationName(data)
             speak('I move to ' + data)
             result = navigationAC(coord_list)
             if result:
