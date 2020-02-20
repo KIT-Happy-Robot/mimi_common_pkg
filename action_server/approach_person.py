@@ -124,7 +124,7 @@ class Navigation(smach.State):
             ap_result = userdata.result_message
             coord_list = userdata.coord_in
             m6Control(0.3)
-            rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(0.90))
+            rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(1.0))
             print rosparam.get_param('/move_base/DWAPlannerROS/xy_goal_tolerance')
             rospy.sleep(0.1)
             result = navigationAC(coord_list)
