@@ -112,7 +112,7 @@ class Mani(smach.State):
         elif name == 'give':
             speak('Here you are')
             result = self.arm_srv(name).result
-        rospy.loginfo('Result is ' + str(result))
+            rospy.loginfo('Result is ' + str(result))
         if result:
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
