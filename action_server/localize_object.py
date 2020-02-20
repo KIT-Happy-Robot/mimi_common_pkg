@@ -53,42 +53,39 @@ class LocalizeObjectAS():
                 self.person_flg = True
 
     def detection(self, receive_msg):
-        #self.person_flg = False
+        self.person_flg = False
         self.timeout = time.time() + 30
-        print receive_msg
-        self.data.target = receive_msg
+        # self.data.target = receive_msg
         result = self.obj_recog(self.data.target)
         self.twist_value.angular.z = 0.3
         while not rospy.is_shutdown() and result.existence == False:
+
+        # while not rospy.is_shutdown() and not self.person_flg == True:
             self.pub_twist.publish(self.twist_value)
-            rospy.sleep(0.5)
-            result = self.obj_recog(self.data.target)
-            if time.time() > self.timeout:
-                return False
+            rospy.sleep(0.3)
+            print self.person_flg
+            # result = self.obj_recog(self.data.target)
+            # if time.time() > self.timeout:
+            #     return False
         self.person_flg = False
         return True
 
     def execute(self, goal):
-        try:
-            print goal.data
-            rospy.loginfo('Start LocalizeObject')
-            m6Control(-0.2)
-            rospy.loginfo('Start detection')
-            result = self.detection(goal.data)
-            self.pub_twist.angular.z = 0.0
-            self.pub_twist.publish(self.twist_value)
-            rospy.loginfo('Finish detection')
-            m6Control(0.3)
-            if result is True:
-                self.result.data = result
-                self.sas.set_succeeded(self.result)
-            else:
-                result.data = result
-                self.sas.set_succeeded(self.result)
-            rospy.loginfo('Finish LocalizeObject')
-        except rospy.ROSInterruptException:
-            rospy.loginfo('**Interrupted**')
-            pass
+        rospy.loginfo('Start LocalizeObject')
+        m6Control(-0.1)
+        rospy.loginfo('Start detection')
+        result = self.detection(goal.data)
+        self.twist_value.angular.z = 0.0
+        self.pub_twist.publish(self.twist_value)
+        rospy.loginfo('Finish detection')
+        m6Control(0.3)
+        if result is True:
+            self.result.data = result
+            self.sas.set_succeeded(self.result)
+        else:
+            result.data = result
+            self.sas.set_succeeded(self.result)
+        rospy.loginfo('Finish LocalizeObject')
 
 
 if __name__ == '__main__':
