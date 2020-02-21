@@ -71,7 +71,7 @@ class Move(smach.State):
         data = userdata.data_in
         if name == 'go':
             coord_list = searchLocationName(data)
-            speak('I move to ' + data)
+            # speak('I move to ' + data)
             result = navigationAC(coord_list)
             if result:
                 self.pub_location.publish(data)
@@ -105,7 +105,7 @@ class Mani(smach.State):
             # obj = self.object_dict[data]
             obj = 'cup'
             print obj
-            speak('I grasp ' + obj)
+            # speak('I grasp ' + obj)
             result = self.grasp_srv(obj).result
         elif name == 'place':
             result == self.arm_srv(name).result
