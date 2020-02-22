@@ -76,7 +76,7 @@ def exeActionPlanAC(action_list, data_list):
         ac.wait_for_result()
 
         result = ac.get_result()
-        if result.data == 'success':
+        if result == 'success':
             rospy.loginfo("Success ExeActionPlan")
             rospy.sleep(0.3)
             ac.cancel_goal()
@@ -101,7 +101,7 @@ def localizeObjectAC(receive_msg):
 
     result = ac.get_result()
     while not rospy.is_shutdown():
-        if result.data:
+        if result:
             rospy.loginfo('Success LocalizeObject')
             #ac.cancel_goal()
             return True

@@ -71,13 +71,14 @@ class Move(smach.State):
         data = userdata.data_in
         if name == 'go':
             coord_list = searchLocationName(data)
-            # speak('I move to ' + data)
+            speak('I move to ' + data)
             result = navigationAC(coord_list)
             if result:
                 self.pub_location.publish(data)
                 userdata.a_num_out = a_count + 1 
                 return 'move_finish'
             else:
+                speak('Failed')
                 userdata.a_num_out = 0 
                 return 'move_failed'
         else:
@@ -102,21 +103,22 @@ class Mani(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'grasp':
-            # obj = self.object_dict[data]
-            obj = 'cup'
-            print obj
-            # speak('I grasp ' + obj)
+            obj = self.object_dict[data]
+            speak('I grasp ' + obj)
             result = self.grasp_srv(obj).result
         elif name == 'place':
-            result == self.arm_srv(name).result
+            result == self.arm_srv('place').result
         elif name == 'give':
             speak('Here you are')
-            result = self.arm_srv(name).result
+            result = self.arm_srv('give').result
             rospy.loginfo('Result is ' + str(result))
+        rospy.loginfo('finish')
         if result:
+            speak('success')
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
         else:
+            speak('Failed')
             userdata.a_num_out = 0 
             return 'mani_failed'
 
