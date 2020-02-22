@@ -4,7 +4,6 @@
 # Title: ActionPlanから行動を決定して実行するアクションサーバー
 # Author: Issei Iida
 # Date: 2020/02/07
-# Memo:
 #--------------------------------------------------------------------
 
 # Python
@@ -38,15 +37,15 @@ class DecideAction(smach.State):
         self.action_state = rosparam.get_param('/action_state')
 
     def execute(self, userdata):
-        rospy.loginfo('Executing state: DETERMINE_ACTION')
+        rospy.loginfo('Executing state: DECIDE_ACTION')
         a_count = userdata.a_num_in
         a_plan = userdata.goal_in
-        print a_plan
         print str(a_count)
+        print a_plan
         if a_count < len(a_plan.action):
-            userdata.a_action_out = a_plan.action[a_count]
-            userdata.a_data_out = a_plan.data[a_count]
             a_name = a_plan.action[a_count]
+            userdata.a_action_out = a_name
+            userdata.a_data_out = a_plan.data[a_count]
             return self.action_state[a_name]
         else:
             rospy.loginfo('all success')
@@ -71,10 +70,10 @@ class Move(smach.State):
         data = userdata.data_in
         if name == 'go':
             coord_list = searchLocationName(data)
-            speak('I move to ' + data)
+            speak('Move to ' + data)
+            self.pub_location.publish(data)
             result = navigationAC(coord_list)
             if result:
-                self.pub_location.publish(data)
                 userdata.a_num_out = a_count + 1 
                 return 'move_finish'
             else:
@@ -104,7 +103,7 @@ class Mani(smach.State):
         data = userdata.data_in
         if name == 'grasp':
             obj = self.object_dict[data]
-            speak('I grasp ' + obj)
+            speak('Grasp ' + obj)
             result = self.grasp_srv(obj).result
         elif name == 'place':
             result == self.arm_srv('place').result
@@ -114,7 +113,6 @@ class Mani(smach.State):
             rospy.loginfo('Result is ' + str(result))
         rospy.loginfo('finish')
         if result:
-            speak('success')
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
         else:
