@@ -106,7 +106,8 @@ class Mani(smach.State):
             speak('Grasp ' + obj)
             result = self.grasp_srv(obj).result
         elif name == 'place':
-            result == self.arm_srv('place').result
+            print 'place'
+            result = self.arm_srv('place').result
         elif name == 'give':
             speak('Here you are')
             result = self.arm_srv('give').result

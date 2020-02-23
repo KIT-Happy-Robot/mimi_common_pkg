@@ -55,11 +55,11 @@ def enterTheRoomAC(receive_msg):
     result = ac.get_result()
     if result.data:
         rospy.loginfo("Success EnterTheRoom")
-        ac.cancel_goal()
+        # ac.cancel_goal()
         return True
     else:
         rospy.loginfo("Failed EnterTheRoom")
-        ac.cancel_goal()
+        # ac.cancel_goal()
         return False
 
 
@@ -75,14 +75,13 @@ def exeActionPlanAC(action_list, data_list):
         ac.wait_for_result()
 
         result = ac.get_result()
-        if result.data:
+        print result.data
+        if result.data == 'success':
             rospy.loginfo("Success ExeActionPlan")
-            rospy.sleep(0.3)
             # ac.cancel_goal()
             return True
         else:
             rospy.loginfo("Failed ExeActionPlan")
-            rospy.sleep(0.3)
             # ac.cancel_goal()
             return False
 
@@ -135,6 +134,7 @@ def navigationAC(coord_list):
         state = ac.get_state()
         if state == 1:
             rospy.loginfo('Got out of the obstacle')
+            rospy.sleep(2.0)
         elif state == 3:
             rospy.loginfo('Navigation success!!')
             # rospy.sleep(0.5)
