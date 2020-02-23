@@ -113,10 +113,10 @@ class Mani(smach.State):
             result = self.arm_srv('give').result
             rospy.loginfo('Result is ' + str(result))
         rospy.loginfo('finish')
-        if result:
+        if result == True:
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
-        else:
+        if result == False:
             speak('Failed')
             userdata.a_num_out = 0 
             return 'mani_failed'

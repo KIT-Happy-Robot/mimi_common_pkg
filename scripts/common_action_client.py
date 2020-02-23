@@ -74,10 +74,11 @@ def exeActionPlanAC(action_list, data_list):
         ac.send_goal(goal)
         ac.wait_for_result()
 
-        result = ac.get_result()
-        print result.data
-        if result.data == 'success':
+        result = ac.get_result().data
+        print result
+        if result == 'success':
             rospy.loginfo("Success ExeActionPlan")
+            result = 'none'
             # ac.cancel_goal()
             return True
         else:
