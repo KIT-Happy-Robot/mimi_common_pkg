@@ -77,7 +77,7 @@ class Move(smach.State):
                 userdata.a_num_out = a_count + 1 
                 return 'move_finish'
             else:
-                speak('Failed')
+                speak('Action failed')
                 userdata.a_num_out = 0 
                 return 'move_failed'
         else:
@@ -104,7 +104,8 @@ class Mani(smach.State):
         if name == 'grasp':
             obj = self.object_dict[data]
             speak('Grasp ' + obj)
-            result = self.grasp_srv(obj).result
+            # result = self.grasp_srv(obj).result
+            result = self.grasp_srv('any').result
         elif name == 'place':
             print 'place'
             result = self.arm_srv('place').result
@@ -117,7 +118,7 @@ class Mani(smach.State):
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
         if result == False:
-            speak('Failed')
+            speak('Action failed')
             userdata.a_num_out = 0 
             return 'mani_failed'
 
@@ -133,12 +134,14 @@ class Search(smach.State):
         rospy.loginfo('Executing state: SEARCH')
         a_count = userdata.num_in
         data = userdata.data_in
-        result = localizeObjectAC(data)
+        # result = localizeObjectAC(data)
         speak('I search ' + data)
+        result = True
         if result:
             userdata.a_num_out = a_count + 1 
             return 'search_finish'
         else:
+            speak('Action failed')
             userdata.a_num_out = 0 
             return 'search_failed'
 
@@ -154,7 +157,7 @@ class Speak(smach.State):
         rospy.loginfo('Executing state: SPEAK')
         a_count = userdata.num_in
         data = userdata.data_in
-        speak(data)
+        # speak(data)
         userdata.a_num_out = a_count + 1 
         return 'speak_finish'
 
