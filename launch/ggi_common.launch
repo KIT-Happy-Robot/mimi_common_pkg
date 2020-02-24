@@ -6,6 +6,6 @@
 
     <node pkg="mimi_common_pkg" name="enter_the_room" type="enter_the_room.py"/>
     <node pkg="mimi_common_pkg" name="location_setup" type="location_setup.py"/>
-    <node pkg="mimi_common_pkg" name="exe_action_plan" type="exe_action_plan.py"/>
+    <node pkg="mimi_common_pkg" name="exe_action_plan" type="exe_action_plan.py" output="screen"/>
 
 </launch>
