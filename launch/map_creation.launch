@@ -1,0 +1,4 @@
+<launch>
+    <node pkg="mimi_common_pkg" name="location_setup" type="location_setup.py" output="screen"/>
+    <node pkg="mimi_voice_control" name="vc_map_creation" type="vc_map_creation.py" output="screen"/>
+</launch>
