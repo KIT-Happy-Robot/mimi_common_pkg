@@ -21,9 +21,10 @@ def main():
     rospy.loginfo('Start Test')
     # localizeObjectAC('person')
     # approachPersonAC()
-    action = ['go']
-    data = ['operator']
-    exeActionPlanAC(action, data)
+    bc = BaseCarrier()
+    bc.translateDist(1.0)
+    rospy.sleep(1.0)
+    bc.angleRotation(165)
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':

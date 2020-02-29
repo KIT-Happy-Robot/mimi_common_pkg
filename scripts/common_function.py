@@ -46,12 +46,12 @@ class BaseCarrier():
 
     # 指定した距離を並進移動
     def translateDist(self, distance):
-        target_time = abs(distance / 0.2)
+        target_time = abs(distance / 0.15)
         if distance >0:
-            self.twist_value.linear.x = 0.24
+            self.twist_value.linear.x = 0.23
         elif distance < 0:
-            self.twist_value.linear.x = -0.24
-        rate = rospy.Rate(30)
+            self.twist_value.linear.x = -0.23
+        rate = rospy.Rate(500)
         start_time = time.time()
         end_time = time.time()
         while end_time - start_time <= target_time:
