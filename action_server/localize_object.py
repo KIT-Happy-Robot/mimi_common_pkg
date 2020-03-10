@@ -19,7 +19,49 @@ from geometry_msgs.msg import Twist
 import actionlib
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts')
-from common_function import BaseCarrier, m6Control
+from common_function import m6Control
+
+
+class Detection():
+    def __init__(self):
+        # Publisher
+        self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size = 1)
+        # Subscriber
+        self.sub_recog = rospy.Subscriber('/recog_obj', String, self.recogCB)
+        # Service
+        self.obj_recog = rospy.ServiceProxy('/object/recognize', RecognizeExistence)
+        # Value
+        self.twist_value = Twist()
+        self.timeout = 0
+
+    def recogCB(self, receive_msg):
+        obj_list = receive_msg.data.split(" ")
+        for i in range(len(obj_list)):
+            if obj_list[i] == 'person':
+                self.person_flg = True
+
+    def execute(self, receive_msg):
+        person_flg = False
+        self.timeout = time.time() + 30
+        # self.data.target = receive_msg
+        result = self.obj_recog(self.data.target)
+        self.twist_value.angular.z = 0.3
+        while not rospy.is_shutdown() and person_flg == False:
+            # result = self.obj_recog(self.data.target)
+            if time.time() > self.timeout:
+                self.twist_value.angular.z == 0
+                self.pub_twist.publish(self.twist_value)
+                result = False
+                break
+            else:
+                self.pub_twist.publish(self.twist_value)
+                rospy.sleep(0.5)
+            print person_flg
+        self.twist_value.angular.z == 0
+        self.pub_twist.publish(self.twist_value)
+        return True
+
+
 
 
 class LocalizeObjectAS():
@@ -30,62 +72,18 @@ class LocalizeObjectAS():
                 LocalizeObjectAction,
                 execute_cb = self.execute,
                 auto_start = False)
-        # Publisher
-        self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size = 1)
-        # Subscriber
-        self.sub_recog = rospy.Subscriber('/recog_obj', String, self.recogCB)
-        # Service
-        self.obj_recog = rospy.ServiceProxy('/object/recognize', RecognizeExistence)
-        
-        self.bc = BaseCarrier()
+        # Value
         self.result = LocalizeObjectResult()
         self.data = RecognizeExistence()
-        self.person_flg = False
-        self.timeout = 0
-        self.twist_value = Twist()
-
-        self.sas.start()
-
-    def recogCB(self, receive_msg):
-        obj_list = receive_msg.data.split(" ")
-        for i in range(len(obj_list)):
-            if obj_list[i] == 'person':
-                self.person_flg = True
-
-    def detection(self, receive_msg):
-        self.person_flg = False
-        self.timeout = time.time() + 30
-        # self.data.target = receive_msg
-        result = self.obj_recog(self.data.target)
-        self.twist_value.angular.z = 0.3
-        while not rospy.is_shutdown() and result.existence == False:
-
-        # while not rospy.is_shutdown() and not self.person_flg == True:
-            self.pub_twist.publish(self.twist_value)
-            rospy.sleep(0.3)
-            print self.person_flg
-            # result = self.obj_recog(self.data.target)
-            # if time.time() > self.timeout:
-            #     return False
-        self.person_flg = False
-        return True
+        self.detection = Detection()
 
     def execute(self, goal):
-        rospy.loginfo('Start LocalizeObject')
+        self.sas.start()
         m6Control(-0.1)
-        rospy.loginfo('Start detection')
-        result = self.detection(goal.data)
-        self.twist_value.angular.z = 0.0
-        self.pub_twist.publish(self.twist_value)
-        rospy.loginfo('Finish detection')
+        result = self.detection.execute(goal.data)
         m6Control(0.3)
-        if result is True:
-            self.result.data = result
-            self.sas.set_succeeded(self.result)
-        else:
-            result.data = result
-            self.sas.set_succeeded(self.result)
-        rospy.loginfo('Finish LocalizeObject')
+        self.result.data = result
+        self.sas.set_succeeded(self.result)
 
 
 if __name__ == '__main__':

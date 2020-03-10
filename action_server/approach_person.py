@@ -7,13 +7,13 @@
 # Memo: 台風19号ハギビス
 #---------------------------------------------------------------------
 
-#Python関系
+# Python
 import sys
 import time
-#ROS関系
+# ROS
 import rospy
 import rosparam
-from actionlib import *
+import actionlib
 from mimi_common_pkg.msg import *
 from nav_msgs.msg import Odometry
 from std_msgs.msg import String, Bool
@@ -28,39 +28,29 @@ from common_action_client import *
 from common_function import *
 
 
-class Localization(smach.State):
+class Localize(smach.State):
     def __init__(self):
-        smach.State.__init__(
-                self,
-                outcomes = ['localize',
-                            'not_localize'],
-                input_keys = ['goal_in'])
+        smach.State.__init__(self, outcomes = ['localize_success', 'localize_failure'])
 
     def execute(self, userdata):
-        try:
-            rospy.loginfo('Executing state LOCALIZATION')
-            result = localizeObjectAC('person')
-            print result
-            if result == True:
-                #speak('I found person')
-                rospy.loginfo('Localization Succes')
-                return 'localize'
-            else:
-                #speak('I can`t find person')
-                rospy.loginfo('Localization Failed')
-                return 'not_localize'
-        except rospy.ROSInterruptException:
-            rospy.loginfo('**Interrupted**')
-            pass
+        rospy.loginfo('Executing state LOCALIZATION')
+        result = localizeObjectAC('person')
+        print result
+        if result == True:
+            #speak('I found person')
+            rospy.loginfo('Localization Succes')
+            return 'localize_success'
+        else:
+            #speak('I can`t find person')
+            rospy.loginfo('Localization Failed')
+            return 'localize_failure'
 
 
 class GetCootdinate(smach.State):
     def __init__(self):
-        smach.State.__init__(
-                self,
-                outcomes = ['get',
-                            'not_get'],
-                output_keys = ['coord_out'])
+        smach.State.__init__(self,
+                             outcomes = ['get_success', 'get_failure'],
+                             output_keys = ['coord_out'])
         # Publisher
         self.pub_coord_req = rospy.Publisher('/move_close_human/human_detect_flag',
                                              Bool,
@@ -86,73 +76,53 @@ class GetCootdinate(smach.State):
         self.person_coord_w = receive_msg.pose.pose.orientation.w
 
     def execute(self, userdata):
-        try:
-            rospy.loginfo('Executing state GET_COORDINATE')
+        rospy.loginfo('Executing state GET_COORDINATE')
+        rospy.sleep(0.1)
+        self.pub_coord_req.publish(True)
+        while not rospy.is_shutdown() and self.person_coord_x == 0.00:
+            rospy.loginfo('Waiting for coordinate')
             rospy.sleep(1.0)
-            self.pub_coord_req.publish(True)
-            while not rospy.is_shutdown() and self.person_coord_x == 0.00:
-                rospy.loginfo('Waiting for coordinate')
-                rospy.sleep(1.0)
-            rospy.loginfo('Got Coordinate')
-            self.coord_list.append(self.person_coord_x)
-            self.coord_list.append(self.person_coord_y)
-            self.coord_list.append(self.person_coord_z)
-            self.coord_list.append(self.person_coord_w)
-            print self.coord_list
-            userdata.coord_out = self.coord_list
-            return 'get'
-        except rospy.ROSInterruptException:
-            rospy.loginfo('**Interrupted**')
-            pass
+        rospy.loginfo('Get Coordinate')
+        self.coord_list.append(self.person_coord_x)
+        self.coord_list.append(self.person_coord_y)
+        self.coord_list.append(self.person_coord_z)
+        self.coord_list.append(self.person_coord_w)
+        print self.coord_list
+        userdata.coord_out = self.coord_list
+        return 'get_success'
 
 
 class Navigation(smach.State):
     def __init__(self):
-        smach.State.__init__(
-                self,
-                outcomes = ['arrive',
-                            'not_arrive'],
-                input_keys = ['result_message',
-                              'coord_in'],
-                output_keys = ['result_message'])
-
+        smach.State.__init__(self,
+                             outcomes = ['navi_success', 'navi_failure'],
+                             input_keys = ['result_message', 'coord_in'],
+                             output_keys = ['result_message'])
         self.result = 'null'
 
     def execute(self, userdata):
-        try:
-            rospy.loginfo('Executing state NAVIGATION')
-            ap_result = userdata.result_message
-            coord_list = userdata.coord_in
-            m6Control(0.3)
-            rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(1.0))
-            print rosparam.get_param('/move_base/DWAPlannerROS/xy_goal_tolerance')
-            rospy.sleep(0.1)
-            result = navigationAC(coord_list)
-            print result
-            if result == True:
-                m6Control(0.4)
-                ##speak('I came close to person')
-                #ap_result = result
-                #userdata.result_message.data = ap_result
-                userdata.result_message.data = self.result
-                return 'arrive'
-            else:
-                #speak('I can`t came close to person')
-                #ap_result = result
-                #userdata.result_message.data = ap_result
-                userdata.result_message.data = self.result
-                return 'not_arrive'
-        except rospy.ROSInterruptException:
-            rospy.loginfo('**Interrupted**')
-            pass
+        rospy.loginfo('Executing state NAVIGATION')
+        coord_list = userdata.coord_in
+        m6Control(0.3)
+        rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(1.0))
+        print rosparam.get_param('/move_base/DWAPlannerROS/xy_goal_tolerance')
+        rospy.sleep(0.1)
+        result = navigationAC(coord_list)
+        if result == True:
+            m6Control(0.4)
+            ##speak('I came close to person')
+            userdata.result_message.data = self.result
+            return 'navi_success'
+        else:
+            #speak('I can`t came close to person')
+            userdata.result_message.data = self.result
+            return 'navi_failure'
 
 
 def main():
     sm_top = StateMachine(
             outcomes = ['success',
-                        'localize_failed',
-                        'navi_failed',
-                        'get_failed',
+                        'action_failed',
                         'preempted'],
             input_keys = ['goal_message',
                           'result_message'],
@@ -160,24 +130,23 @@ def main():
 
     with sm_top:
         StateMachine.add(
-                'LOCALIZATION',
-                Localization(),
-                transitions = {'localize':'GET_COORDINATE',
-                               'not_localize':'localize_failed'},
-                remapping = {'goal_in':'goal_message'})
+                'LOCALIZE',
+                Localize(),
+                transitions = {'localize_success':'GET_COORDINATE',
+                               'lcoalize_failure':'action_failed'})
 
         StateMachine.add(
                 'GET_COORDINATE',
                 GetCootdinate(),
-                transitions = {'get':'NAVIGATION',
-                               'not_get':'get_failed'},
+                transitions = {'get_success':'NAVIGATION',
+                               'get_failure':'action_failed'},
                 remapping = {'coord_out':'person_coord'})
 
         StateMachine.add(
                 'NAVIGATION',
                 Navigation(),
-                transitions = {'arrive':'success',
-                               'not_arrive':'navi_failed'},
+                transitions = {'navi_success':'success',
+                               'navi_failure':'action_failed'},
                 remapping = {'result_message':'result_message',
                              'coord_in':'person_coord'})
 
@@ -186,9 +155,7 @@ def main():
             ApproachPersonAction,
             wrapped_container = sm_top,
             succeeded_outcomes = ['success'],
-            aborted_outcomes = ['find_failed',
-                                'get_failed',
-                                'navi_failed'],
+            aborted_outcomes = ['action_failed'],
             preempted_outcomes = ['preempted'],
             goal_key = 'goal_message',
             result_key = 'result_message')
