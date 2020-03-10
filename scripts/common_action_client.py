@@ -127,32 +127,27 @@ def navigationAC(coord_list):
     # Costmapを消去
     clear_costmaps()
     rospy.wait_for_service('move_base/clear_costmaps')
-    rospy.sleep(1.0)
+    rospy.sleep(0.3)
     ac.send_goal(goal)
     state = ac.get_state()
     count = 0# <---clear_costmapsの実行回数をカウントするための変数
     while not rospy.is_shutdown():
         state = ac.get_state()
         if state == 1:
-            rospy.loginfo('Got out of the obstacle')
-            rospy.sleep(2.0)
+            rospy.loginfo('Running...')
+            rospy.sleep(1.0)
         elif state == 3:
             rospy.loginfo('Navigation success!!')
-            # rospy.sleep(0.5)
-            # ac.cancel_goal()
             state = 0
             return True
         elif state == 4:
             if count == 5:
                 count = 0
                 rospy.loginfo('Navigation Failed')
-                # rospy.sleep(0.5)
-                # ac.cancel_goal()
                 return False
             else:
                 rospy.loginfo('Clear Costmaps')
                 clear_costmaps()
                 ac.send_goal(goal)
                 rospy.loginfo('Send Goal')
-                rospy.sleep(2.0)
                 count += 1
