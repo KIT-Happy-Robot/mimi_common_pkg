@@ -20,11 +20,7 @@ from common_function import *
 def main():
     rospy.loginfo('Start Test')
     # localizeObjectAC('person')
-    # approachPersonAC()
-    bc = BaseCarrier()
-    bc.translateDist(1.0)
-    rospy.sleep(1.0)
-    bc.angleRotation(165)
+    approachPersonAC()
     rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':

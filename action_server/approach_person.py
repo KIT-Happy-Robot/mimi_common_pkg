@@ -35,14 +35,11 @@ class Localize(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state LOCALIZATION')
         result = localizeObjectAC('person')
-        print result
         if result == True:
-            #speak('I found person')
-            rospy.loginfo('Localization Succes')
+            speak('I found person')
             return 'localize_success'
         else:
-            #speak('I can`t find person')
-            rospy.loginfo('Localization Failed')
+            speak('I can`t find person')
             return 'localize_failure'
 
 
@@ -70,10 +67,13 @@ class GetCootdinate(smach.State):
     def personCoordCB(self, receive_msg):
         self.person_coord_x = receive_msg.world_x
         self.person_coord_y = receive_msg.world_y
+        self.person_coord_z = receive_msg.world_z
+        self.person_coord_w = receive_msg.world_w
 
     def orientationCB(self, receive_msg):
-        self.person_coord_z = receive_msg.pose.pose.orientation.z
-        self.person_coord_w = receive_msg.pose.pose.orientation.w
+        # self.person_coord_z = receive_msg.pose.pose.orientation.z
+        # self.person_coord_w = receive_msg.pose.pose.orientation.w
+        print 'A'
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
@@ -89,6 +89,11 @@ class GetCootdinate(smach.State):
         self.coord_list.append(self.person_coord_w)
         print self.coord_list
         userdata.coord_out = self.coord_list
+        self.person_coord_x = 0.00
+        self.person_coord_y = 0.00
+        self.person_coord_z = 0.00
+        self.person_coord_w = 0.00
+        self.coord_list = []
         return 'get_success'
 
 
@@ -98,24 +103,23 @@ class Navigation(smach.State):
                              outcomes = ['navi_success', 'navi_failure'],
                              input_keys = ['result_message', 'coord_in'],
                              output_keys = ['result_message'])
-        self.result = 'null'
 
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         coord_list = userdata.coord_in
-        m6Control(0.3)
+        rospy.sleep(0.5)
         rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(1.0))
-        print rosparam.get_param('/move_base/DWAPlannerROS/xy_goal_tolerance')
-        rospy.sleep(0.1)
+        rosparam.set_param('/move_base/DWAPlannerROS/yaw_goal_tolerance', str(6.20))
         result = navigationAC(coord_list)
+        self.coord_list = []
         if result == True:
-            m6Control(0.4)
-            ##speak('I came close to person')
-            userdata.result_message.data = self.result
+            m6Control(0.2)
+            speak('I came close to person')
+            userdata.result_message.data = result
             return 'navi_success'
         else:
-            #speak('I can`t came close to person')
-            userdata.result_message.data = self.result
+            speak('I can`t came close to person')
+            userdata.result_message.data = result
             return 'navi_failure'
 
 
@@ -133,7 +137,7 @@ def main():
                 'LOCALIZE',
                 Localize(),
                 transitions = {'localize_success':'GET_COORDINATE',
-                               'lcoalize_failure':'action_failed'})
+                               'localize_failure':'action_failed'})
 
         StateMachine.add(
                 'GET_COORDINATE',

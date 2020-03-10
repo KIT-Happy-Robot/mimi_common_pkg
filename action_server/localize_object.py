@@ -26,42 +26,29 @@ class Detection():
     def __init__(self):
         # Publisher
         self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size = 1)
-        # Subscriber
-        self.sub_recog = rospy.Subscriber('/recog_obj', String, self.recogCB)
         # Service
         self.obj_recog = rospy.ServiceProxy('/object/recognize', RecognizeExistence)
         # Value
         self.twist_value = Twist()
+        self.data = RecognizeExistence()
         self.timeout = 0
-
-    def recogCB(self, receive_msg):
-        obj_list = receive_msg.data.split(" ")
-        for i in range(len(obj_list)):
-            if obj_list[i] == 'person':
-                self.person_flg = True
 
     def execute(self, receive_msg):
         person_flg = False
+        self.data.target = receive_msg
         self.timeout = time.time() + 30
-        # self.data.target = receive_msg
-        result = self.obj_recog(self.data.target)
         self.twist_value.angular.z = 0.3
         while not rospy.is_shutdown() and person_flg == False:
-            # result = self.obj_recog(self.data.target)
+            person_flg = self.obj_recog(self.data.target).existence
             if time.time() > self.timeout:
                 self.twist_value.angular.z == 0
                 self.pub_twist.publish(self.twist_value)
-                result = False
-                break
+                return False
             else:
                 self.pub_twist.publish(self.twist_value)
-                rospy.sleep(0.5)
-            print person_flg
         self.twist_value.angular.z == 0
         self.pub_twist.publish(self.twist_value)
         return True
-
-
 
 
 class LocalizeObjectAS():
@@ -72,16 +59,15 @@ class LocalizeObjectAS():
                 LocalizeObjectAction,
                 execute_cb = self.execute,
                 auto_start = False)
+        self.sas.start()
         # Value
         self.result = LocalizeObjectResult()
-        self.data = RecognizeExistence()
         self.detection = Detection()
 
     def execute(self, goal):
-        self.sas.start()
-        m6Control(-0.1)
+        m6Control(-0.4)
+        rospy.sleep(2.0)
         result = self.detection.execute(goal.data)
-        m6Control(0.3)
         self.result.data = result
         self.sas.set_succeeded(self.result)
 

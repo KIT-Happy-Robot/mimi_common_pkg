@@ -94,6 +94,7 @@ def localizeObjectAC(receive_msg):
 
     goal = LocalizeObjectGoal()
     goal.data = receive_msg
+    print goal.data
 
     ac.send_goal(goal)
     ac.wait_for_result()
