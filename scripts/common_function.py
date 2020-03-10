@@ -21,7 +21,8 @@ from gcp_texttospeech.srv import TTS
 
 # Grobal
 pub_speak = rospy.Publisher('/tts', String, queue_size = 1)
-pub_m6 = rospy.Publisher('/m6_controller/command', Float64, queue_size = 1)
+#pub_m6 = rospy.Publisher('/m6_controller/command', Float64, queue_size = 1)
+pub_m6 = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 def speak(phrase):

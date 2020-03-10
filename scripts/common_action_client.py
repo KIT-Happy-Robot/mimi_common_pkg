@@ -111,7 +111,7 @@ def localizeObjectAC(receive_msg):
 
 def navigationAC(coord_list):
     rospy.loginfo("Start Navigation")
-    m6Control(0.3)
+    m6Control(-0.2)
     ac = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
     ac.wait_for_server()
     # Service
