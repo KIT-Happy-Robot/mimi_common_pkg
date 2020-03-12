@@ -22,6 +22,8 @@ from smach_ros import ActionServerWrapper
 from smach import StateMachine
 import smach_ros
 import smach
+# from dynamic_reconfigure.msg import Config
+import dynamic_reconfigure.client
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_action_client import *
@@ -36,10 +38,11 @@ class Localize(smach.State):
         rospy.loginfo('Executing state LOCALIZATION')
         result = localizeObjectAC('person')
         if result == True:
-            speak('I found person')
+            # speak('I found person')
+            rospy.sleep(1.0)
             return 'localize_success'
         else:
-            speak('I can`t find person')
+            # speak('I can`t find person')
             return 'localize_failure'
 
 
@@ -67,22 +70,19 @@ class GetCootdinate(smach.State):
     def personCoordCB(self, receive_msg):
         self.person_coord_x = receive_msg.world_x
         self.person_coord_y = receive_msg.world_y
-        self.person_coord_z = receive_msg.world_z
-        self.person_coord_w = receive_msg.world_w
+        # self.person_coord_z = receive_msg.world_z
+        # self.person_coord_w = receive_msg.world_w
 
     def orientationCB(self, receive_msg):
-        # self.person_coord_z = receive_msg.pose.pose.orientation.z
-        # self.person_coord_w = receive_msg.pose.pose.orientation.w
-        print 'A'
+        self.person_coord_z = receive_msg.pose.pose.orientation.z
+        self.person_coord_w = receive_msg.pose.pose.orientation.w
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
         rospy.sleep(0.1)
         self.pub_coord_req.publish(True)
         while not rospy.is_shutdown() and self.person_coord_x == 0.00:
-            rospy.loginfo('Waiting for coordinate')
-            rospy.sleep(1.0)
-        rospy.loginfo('Get Coordinate')
+            rospy.sleep(0.1)
         self.coord_list.append(self.person_coord_x)
         self.coord_list.append(self.person_coord_y)
         self.coord_list.append(self.person_coord_z)
@@ -103,22 +103,25 @@ class Navigation(smach.State):
                              outcomes = ['navi_success', 'navi_failure'],
                              input_keys = ['result_message', 'coord_in'],
                              output_keys = ['result_message'])
+        # self.xy_goal_tolerance_pub = rospy.Publisher('/move_base/DWAPlannerROS/parameter_update',
+        #                                              Config,
+        #                                              queue_size = 1)
+        # self.reconfig_data = Config()
+        self.client = dynamic_reconfigure.client.Client('move_base', config_callback = self.setConfig)
 
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         coord_list = userdata.coord_in
         rospy.sleep(0.5)
-        rosparam.set_param('/move_base/DWAPlannerROS/xy_goal_tolerance', str(1.0))
-        rosparam.set_param('/move_base/DWAPlannerROS/yaw_goal_tolerance', str(6.20))
         result = navigationAC(coord_list)
         self.coord_list = []
         if result == True:
             m6Control(0.2)
-            speak('I came close to person')
+            # speak('I came close to person')
             userdata.result_message.data = result
             return 'navi_success'
         else:
-            speak('I can`t came close to person')
+            # speak('I can`t came close to person')
             userdata.result_message.data = result
             return 'navi_failure'
 
