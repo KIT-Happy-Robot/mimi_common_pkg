@@ -8,31 +8,30 @@
 #--------------------------------------------------------------------
 
 # Python
-import time
-from yaml import load
 import sys
+import time
 # ROS
 import rospy
 import rosparam
+# Message
 from std_msgs.msg import String, Float64, Int32
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from gcp_texttospeech.srv import TTS
 
 # Grobal
-pub_speak = rospy.Publisher('/tts', String, queue_size = 1)
-#pub_m6 = rospy.Publisher('/m6_controller/command', Float64, queue_size = 1)
 pub_m6 = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 tts_srv = rospy.ServiceProxy('/tts', TTS)
+# pub_speak = rospy.Publisher('/tts', String, queue_size = 1)
+
 
 def speak(phrase):
     tts_srv(phrase)
 
-
 # m6(首のサーボモータ)の制御
 def m6Control(value):
-    data = Float64()
-    data = value
+    # data = Float64()
+    data = Float64(value)
     rospy.sleep(0.1)
     pub_m6.publish(data)
 

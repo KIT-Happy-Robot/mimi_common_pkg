@@ -13,17 +13,17 @@ import rospy
 import rosparam
 import actionlib
 import smach
-import smach_ros
 from smach import StateMachine
+import smach_ros
 from smach_ros import ActionServerWrapper
 # Message/Service
-from mimi_common_pkg.msg import *
 from std_msgs.msg import String, Bool
 from mimi_common_pkg.srv import ManipulateSrv
+from mimi_common_pkg.msg import ExeActionPlanAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_action_client import *
-from common_function import *
+from common_action_client import navigationAC, localizeObjectAC
+from common_function import speak, searchLocationName, m6Control 
 
 
 class DecideAction(smach.State):
@@ -69,9 +69,9 @@ class Move(smach.State):
         name = userdata.action_in
         data = userdata.data_in
         if name == 'go':
-            coord_list = searchLocationName(data)
             speak('Move to ' + data)
             self.pub_location.publish(data)
+            coord_list = searchLocationName(data)
             result = navigationAC(coord_list)
             if result:
                 userdata.a_num_out = a_count + 1 
@@ -110,8 +110,9 @@ class Mani(smach.State):
             print 'place'
             result = self.arm_srv('place').result
         elif name == 'give':
-            speak('Here you are')
+            m6Control(0.3)
             result = self.arm_srv('give').result
+            speak('Here you are')
             rospy.loginfo('Result is ' + str(result))
         rospy.loginfo('finish')
         if result == True:

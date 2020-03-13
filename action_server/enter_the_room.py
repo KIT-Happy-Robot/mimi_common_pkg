@@ -12,25 +12,26 @@ import sys
 # ROS
 import rospy
 import actionlib
-from mimi_common_pkg.msg import EnterTheRoomAction, EnterTheRoomResult
-from sensor_msgs.msg import LaserScan
+# Message
 from std_msgs.msg import String
+from sensor_msgs.msg import LaserScan
+from mimi_common_pkg.msg import EnterTheRoomAction, EnterTheRoomResult
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts')
-from common_function import *
+from common_function import speak, BaseCarrier
 
 
 class EnterTheRoomAS():
     def __init__(self):
-        # Subscriber
-        self.laser_sub = rospy.Subscriber('/scan', LaserScan, self.laserCB)
         # ActionServer
         self.sas = actionlib.SimpleActionServer(
                 'enter_the_room',
                 EnterTheRoomAction,
                 execute_cb = self.execute,
                 auto_start = False)
-
+        # Subscriber
+        self.laser_sub = rospy.Subscriber('/scan', LaserScan, self.laserCB)
+ 
         self.bc = BaseCarrier()
         self.result = EnterTheRoomResult()
         self.front_laser_dist = 999.9
@@ -45,7 +46,7 @@ class EnterTheRoomAS():
         target_distance = self.front_laser_dist + receive_msg - 0.05
         speak('Please open the door')
         while self.front_laser_dist <= target_distance:
-            rospy.sleep(1.0)
+            rospy.sleep(0.1)
         speak('Thank you')
         return target_distance
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------
-# Title: 人接近を行うActionServer
+# Title: 人接近ActionServer
 # Author: Issei Iida
 # Date: 2019/10/13
 # Memo: 台風19号ハギビス
@@ -9,25 +9,24 @@
 
 # Python
 import sys
-import time
 # ROS
 import rospy
 import rosparam
-import actionlib
-from mimi_common_pkg.msg import *
-from nav_msgs.msg import Odometry
-from std_msgs.msg import String, Bool
-from get_distance_pcl.msg import Coordinate_xyz
-from smach_ros import ActionServerWrapper
+# import actionlib
+import smach
 from smach import StateMachine
 import smach_ros
-import smach
+from smach_ros import ActionServerWrapper
 import dynamic_reconfigure.client
-
+# Message
+from std_msgs.msg import String, Bool
+from nav_msgs.msg import Odometry
+from get_distance_pcl.msg import Coordinate_xyz
+from mimi_common_pkg.msg import ApproachPersonAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_action_client import *
-from common_function import *
+from common_action_client import localizeObjectAC
+from common_function import speak
 
 
 class Localize(smach.State):
@@ -38,10 +37,10 @@ class Localize(smach.State):
         rospy.loginfo('Executing state LOCALIZATION')
         result = localizeObjectAC('person')
         if result == True:
-            # speak('I found person')
+            speak("I found person")
             return 'localize_success'
         else:
-            # speak('I can`t find person')
+            speak("I could't find person")
             return 'localize_failure'
 
 
@@ -72,9 +71,7 @@ class GetCootdinate(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
-        rospy.sleep(0.1)
         self.pub_coord_req.publish(True)
-        # while not rospy.is_shutdown() and self.person_coord_x == 0.00:
         while not rospy.is_shutdown() and len(self.p_coord_list) <= 4:
             rospy.sleep(0.1)
         userdata.coord_out = self.p_coord_list
@@ -111,11 +108,12 @@ class Navigation(smach.State):
         self.setDynparam('defalt')
         m6Control(0.3)
         if result == True:
-            # speak('I came close to person')
+            speak("I approached the person")
             userdata.result_message.data = result
             return 'navi_success'
         else:
-            # speak('I can`t came close to person')
+            speak("I could't approach the person")
+            speak("Please come near me")
             userdata.result_message.data = result
             return 'navi_failure'
 
