@@ -39,7 +39,6 @@ class Localize(smach.State):
         result = localizeObjectAC('person')
         if result == True:
             # speak('I found person')
-            rospy.sleep(1.0)
             return 'localize_success'
         else:
             # speak('I can`t find person')
@@ -60,40 +59,26 @@ class GetCootdinate(smach.State):
                                         Coordinate_xyz,
                                         self.personCoordCB)
         self.sub_odom = rospy.Subscriber('/odom', Odometry, self.orientationCB)
-
-        self.person_coord_x = 0.00
-        self.person_coord_y = 0.00
-        self.person_coord_z = 0.00
-        self.person_coord_w = 0.00
-        self.coord_list = []
+        # Value
+        self.p_coord_list = []
 
     def personCoordCB(self, receive_msg):
-        self.person_coord_x = receive_msg.world_x
-        self.person_coord_y = receive_msg.world_y
-        # self.person_coord_z = receive_msg.world_z
-        # self.person_coord_w = receive_msg.world_w
+        self.p_coord_list[0] = receive_msg.world_x
+        self.p_coord_list[1] = receive_msg.world_y
 
     def orientationCB(self, receive_msg):
-        self.person_coord_z = receive_msg.pose.pose.orientation.z
-        self.person_coord_w = receive_msg.pose.pose.orientation.w
+        self.p_coord_list[2] = receive_msg.pose.pose.orientation.z
+        self.p_coord_list[3] = receive_msg.pose.pose.orientation.w
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
-        rospy.sleep(1.0)
+        rospy.sleep(0.1)
         self.pub_coord_req.publish(True)
-        while not rospy.is_shutdown() and self.person_coord_x == 0.00:
+        # while not rospy.is_shutdown() and self.person_coord_x == 0.00:
+        while not rospy.is_shutdown() and len(self.p_coord_list) <= 4:
             rospy.sleep(0.1)
-        self.coord_list.append(self.person_coord_x)
-        self.coord_list.append(self.person_coord_y)
-        self.coord_list.append(self.person_coord_z)
-        self.coord_list.append(self.person_coord_w)
-        print self.coord_list
-        userdata.coord_out = self.coord_list
-        self.person_coord_x = 0.00
-        self.person_coord_y = 0.00
-        self.person_coord_z = 0.00
-        self.person_coord_w = 0.00
-        self.coord_list = []
+        userdata.coord_out = self.p_coord_list
+        self.p_coord_list = []
         return 'get_success'
 
 
@@ -103,21 +88,29 @@ class Navigation(smach.State):
                              outcomes = ['navi_success', 'navi_failure'],
                              input_keys = ['result_message', 'coord_in'],
                              output_keys = ['result_message'])
-        self.DWA_client = dynamic_reconfigure.client.Client('/move_base/DWAPlannerROS')
-        self.local_cost_client = dynamic_reconfigure.client.Client('/move_base/local_costmap/realsense_layer')
-        self.DWA_param = {'xy_goal_tolerance':0.8, 'yaw_goal_tolerance':6.2}
-        self.realsense_layer_param = {'enabled':False}
+        # Dynparam
+        self.dwa_c = dynamic_reconfigure.client.Client('/move_base/DWAPlannerROS')
+        self.realsense_c = dynamic_reconfigure.client.Client('/move_base/local_costmap/realsense_layer')
 
+    def setDynparam(self, state):
+        if state == 'set':
+            goal_tolerance_p = {'xy_goal_tolerance':0.8, 'yaw_goal_tolerance':6.2}
+            realsense_p = {'enabled':False}
+        elif state == 'defalt':
+            goal_tolerance_p = {'xy_goal_tolerance':0.15, 'yaw_goal_tolerance':0.08}
+            realsense_p = {'enabled':True}
+        self.dwa_c.update_configuration(goal_tolerance_p)
+        self.realsense_c.update_configuration(realsense_p)
+        rospy.sleep(1.0)
+ 
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         coord_list = userdata.coord_in
-        set_dynparam_a = self.DWA_client.update_configuration(self.DWA_param)
-        set_dynparam_b = self.local_cost_client.update_configuration(self.realsense_layer_param)
-        rospy.sleep(1.5)
+        self.setDynparam('set')
         result = navigationAC(coord_list)
-        self.coord_list = []
+        self.setDynparam('defalt')
+        m6Control(0.3)
         if result == True:
-            m6Control(0.2)
             # speak('I came close to person')
             userdata.result_message.data = result
             return 'navi_success'

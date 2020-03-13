@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------
-#Title: ActionServerNodeのデバッグ用ROSノード
-#Author: Issei Iida
-#Date: 2019/10/11
-#Memo:
+# Title: ActionServerNodeのデバッグ用ROSノード
+# Author: Issei Iida
+# Date: 2019/10/11
+# Memo:
 #---------------------------------------------------------------------
 
 # Python

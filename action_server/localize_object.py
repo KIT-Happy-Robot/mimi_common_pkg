@@ -46,6 +46,7 @@ class Detection():
                 return False
             else:
                 self.pub_twist.publish(self.twist_value)
+                rospy.sleep(0.5)
         self.twist_value.angular.z == 0
         self.pub_twist.publish(self.twist_value)
         return True
@@ -66,7 +67,7 @@ class LocalizeObjectAS():
 
     def execute(self, goal):
         m6Control(-0.4)
-        rospy.sleep(2.0)
+        rospy.sleep(1.0)
         result = self.detection.execute(goal.data)
         self.result.data = result
         self.sas.set_succeeded(self.result)
