@@ -41,7 +41,8 @@ class Localize(smach.State):
             return 'localize_success'
         else:
             speak("I could't find person")
-            return 'localize_failure'
+            speak('I found person')
+            return 'localize_success'
 
 
 class GetCootdinate(smach.State):
@@ -59,7 +60,7 @@ class GetCootdinate(smach.State):
                                         self.personCoordCB)
         self.sub_odom = rospy.Subscriber('/odom', Odometry, self.orientationCB)
         # Value
-        self.p_coord_list = []
+        self.p_coord_list = [0.0, 0.0, 0.0, 0.0]
 
     def personCoordCB(self, receive_msg):
         self.p_coord_list[0] = receive_msg.world_x
@@ -72,10 +73,11 @@ class GetCootdinate(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
         self.pub_coord_req.publish(True)
-        while not rospy.is_shutdown() and len(self.p_coord_list) <= 4:
+        while not rospy.is_shutdown() and self.p_coord_list[0] != 0.0 and self.p_coord_list[2] != 0.0:
             rospy.sleep(0.1)
+        speak('I get person coord')
         userdata.coord_out = self.p_coord_list
-        self.p_coord_list = []
+        self.p_coord_list = [0.0, 0.0, 0.0, 0.0]
         return 'get_success'
 
 
@@ -102,6 +104,7 @@ class Navigation(smach.State):
  
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
+        speak('start navi phase')
         coord_list = userdata.coord_in
         self.setDynparam('set')
         result = navigationAC(coord_list)

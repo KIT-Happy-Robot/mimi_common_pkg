@@ -14,7 +14,7 @@ import time
 import rospy
 import rosparam
 # Message
-from std_msgs.msg import String, Float64, Int32
+from std_msgs.msg import Float64, String
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from gcp_texttospeech.srv import TTS
