@@ -38,10 +38,10 @@ class Localize(smach.State):
         rospy.loginfo('Executing state LOCALIZATION')
         result = localizeObjectAC('person')
         if result == True:
-            # speak('I found person')
+            speak('I found person')
             return 'localize_success'
         else:
-            # speak('I can`t find person')
+            speak('I can`t find person')
             return 'localize_failure'
 
 
@@ -60,7 +60,7 @@ class GetCootdinate(smach.State):
                                         self.personCoordCB)
         self.sub_odom = rospy.Subscriber('/odom', Odometry, self.orientationCB)
         # Value
-        self.p_coord_list = []
+        self.p_coord_list = [0.0, 0.0, 0.0, 0.0]
 
     def personCoordCB(self, receive_msg):
         self.p_coord_list[0] = receive_msg.world_x
@@ -74,11 +74,11 @@ class GetCootdinate(smach.State):
         rospy.loginfo('Executing state GET_COORDINATE')
         rospy.sleep(0.1)
         self.pub_coord_req.publish(True)
-        # while not rospy.is_shutdown() and self.person_coord_x == 0.00:
-        while not rospy.is_shutdown() and len(self.p_coord_list) <= 4:
+        while not rospy.is_shutdown() and self.p_coord_list[0] != 0.0 and self.p_coord_list[2] != 0.0:
             rospy.sleep(0.1)
+        speak('I get person coord')
         userdata.coord_out = self.p_coord_list
-        self.p_coord_list = []
+        self.p_coord_list = [0.0, 0.0, 0.0, 0.0]
         return 'get_success'
 
 
@@ -105,17 +105,18 @@ class Navigation(smach.State):
  
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
+        speak('start navi phase')
         coord_list = userdata.coord_in
         self.setDynparam('set')
         result = navigationAC(coord_list)
         self.setDynparam('defalt')
         m6Control(0.3)
         if result == True:
-            # speak('I came close to person')
+            speak('I came close to person')
             userdata.result_message.data = result
             return 'navi_success'
         else:
-            # speak('I can`t came close to person')
+            speak('I can`t came close to person')
             userdata.result_message.data = result
             return 'navi_failure'
 
