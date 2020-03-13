@@ -7,6 +7,7 @@
 # Memo: 台風19号ハギビス
 #---------------------------------------------------------------------
 
+PACKAGE = 'base_local_planner'
 # Python
 import sys
 import time
@@ -22,8 +23,9 @@ from smach_ros import ActionServerWrapper
 from smach import StateMachine
 import smach_ros
 import smach
-# from dynamic_reconfigure.msg import Config
+import roslib;roslib.load_manifest(PACKAGE)
 import dynamic_reconfigure.client
+
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
 from common_action_client import *
@@ -106,13 +108,16 @@ class Navigation(smach.State):
         # self.xy_goal_tolerance_pub = rospy.Publisher('/move_base/DWAPlannerROS/parameter_update',
         #                                              Config,
         #                                              queue_size = 1)
-        # self.reconfig_data = Config()
-        self.client = dynamic_reconfigure.client.Client('move_base', config_callback = self.setConfig)
+        self.client = dynamic_reconfigure.client.Client('move_base/TrajectoryPlannerROS', timeout=4,config_callback=self.execute)
 
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         coord_list = userdata.coord_in
         rospy.sleep(0.5)
+        r = rospy.Rate(0.3)
+        while not rospy.is_shutdown():
+            client.update_configuration({"xy_goal_tolerance":0.8})
+            r.sleep()
         result = navigationAC(coord_list)
         self.coord_list = []
         if result == True:
