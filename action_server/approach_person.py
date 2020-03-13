@@ -7,7 +7,6 @@
 # Memo: 台風19号ハギビス
 #---------------------------------------------------------------------
 
-PACKAGE = 'base_local_planner'
 # Python
 import sys
 import time
@@ -23,7 +22,6 @@ from smach_ros import ActionServerWrapper
 from smach import StateMachine
 import smach_ros
 import smach
-import roslib;roslib.load_manifest(PACKAGE)
 import dynamic_reconfigure.client
 
 
@@ -81,7 +79,7 @@ class GetCootdinate(smach.State):
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
-        rospy.sleep(0.1)
+        rospy.sleep(1.0)
         self.pub_coord_req.publish(True)
         while not rospy.is_shutdown() and self.person_coord_x == 0.00:
             rospy.sleep(0.1)
@@ -105,19 +103,17 @@ class Navigation(smach.State):
                              outcomes = ['navi_success', 'navi_failure'],
                              input_keys = ['result_message', 'coord_in'],
                              output_keys = ['result_message'])
-        # self.xy_goal_tolerance_pub = rospy.Publisher('/move_base/DWAPlannerROS/parameter_update',
-        #                                              Config,
-        #                                              queue_size = 1)
-        self.client = dynamic_reconfigure.client.Client('move_base/TrajectoryPlannerROS', timeout=4,config_callback=self.execute)
+        self.DWA_client = dynamic_reconfigure.client.Client('/move_base/DWAPlannerROS')
+        self.local_cost_client = dynamic_reconfigure.client.Client('/move_base/local_costmap/realsense_layer')
+        self.DWA_param = {'xy_goal_tolerance':0.8, 'yaw_goal_tolerance':6.2}
+        self.realsense_layer_param = {'enabled':False}
 
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         coord_list = userdata.coord_in
-        rospy.sleep(0.5)
-        r = rospy.Rate(0.3)
-        while not rospy.is_shutdown():
-            client.update_configuration({"xy_goal_tolerance":0.8})
-            r.sleep()
+        set_dynparam_a = self.DWA_client.update_configuration(self.DWA_param)
+        set_dynparam_b = self.local_cost_client.update_configuration(self.realsense_layer_param)
+        rospy.sleep(1.5)
         result = navigationAC(coord_list)
         self.coord_list = []
         if result == True:
