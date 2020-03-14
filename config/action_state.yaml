@@ -1,4 +1,5 @@
 {'go':'move',
+ 'approach':'move'
  'grasp':'mani',
  'place':'mani',
  'give':'mani',

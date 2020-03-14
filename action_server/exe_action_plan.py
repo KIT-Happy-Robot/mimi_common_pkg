@@ -22,7 +22,7 @@ from mimi_common_pkg.srv import ManipulateSrv
 from mimi_common_pkg.msg import ExeActionPlanAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_action_client import navigationAC, localizeObjectAC
+from common_action_client import navigationAC, localizeObjectAC, approachPersonAC
 from common_function import speak, searchLocationName, m6Control 
 
 
@@ -68,19 +68,23 @@ class Move(smach.State):
         a_count = userdata.num_in
         name = userdata.action_in
         data = userdata.data_in
+        speak('Move to ' + data)
         if name == 'go':
-            speak('Move to ' + data)
             self.pub_location.publish(data)
             coord_list = searchLocationName(data)
             result = navigationAC(coord_list)
-            if result:
-                userdata.a_num_out = a_count + 1 
-                return 'move_finish'
-            else:
-                speak('Action failed')
-                userdata.a_num_out = 0 
-                return 'move_failed'
+        elif name == 'approach':
+            result = approachPersonAC()
+        elif result == True:
+            speak('Action success')
+            userdata.a_num_out = a_count + 1 
+            return 'move_finish'
+        elif result == False:
+            speak('Action failed')
+            userdata.a_num_out = 0 
+            return 'move_failed'
         else:
+            speak('okey dokey')
             return 'move_finish'
 
 
@@ -95,7 +99,7 @@ class Mani(smach.State):
         self.arm_srv = rospy.ServiceProxy('/change_arm_pose', ManipulateSrv)
         # Param
         self.object_dict = rosparam.get_param('/object_mapping')
- 
+
     def execute(self, userdata):
         rospy.loginfo('Executing state: MANI')
         a_count = userdata.num_in
@@ -104,24 +108,24 @@ class Mani(smach.State):
         if name == 'grasp':
             obj = self.object_dict[data]
             speak('Grasp ' + obj)
-            # result = self.grasp_srv(obj).result
-            result = self.grasp_srv('any').result
+            result = self.grasp_srv(obj).result
+            # result = self.grasp_srv('any').result
         elif name == 'place':
-            print 'place'
             result = self.arm_srv('place').result
         elif name == 'give':
             m6Control(0.3)
             result = self.arm_srv('give').result
             speak('Here you are')
-            rospy.loginfo('Result is ' + str(result))
-        rospy.loginfo('finish')
-        if result == True:
+        elif result == True:
+            speak('Action success')
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
-        if result == False:
+        elif result == False:
             speak('Action failed')
             userdata.a_num_out = 0 
             return 'mani_failed'
+        else:
+            return 'mani_finish'
 
 
 class Search(smach.State):
@@ -158,7 +162,7 @@ class Speak(smach.State):
         rospy.loginfo('Executing state: SPEAK')
         a_count = userdata.num_in
         data = userdata.data_in
-        # speak(data)
+        speak(data)
         userdata.a_num_out = a_count + 1 
         return 'speak_finish'
 
