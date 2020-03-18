@@ -25,8 +25,8 @@ from get_distance_pcl.msg import Coordinate_xyz
 from mimi_common_pkg.msg import ApproachPersonAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_action_client import localizeObjectAC
-from common_function import speak
+from common_action_client import localizeObjectAC, navigationAC
+from common_function import speak, m6Control
 
 
 class Localize(smach.State):
@@ -41,8 +41,7 @@ class Localize(smach.State):
             return 'localize_success'
         else:
             speak("I could't find person")
-            speak('I found person')
-            return 'localize_success'
+            return 'localize_failure'
 
 
 class GetCootdinate(smach.State):
@@ -73,9 +72,9 @@ class GetCootdinate(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state GET_COORDINATE')
         self.pub_coord_req.publish(True)
-        while not rospy.is_shutdown() and self.p_coord_list[0] != 0.0 and self.p_coord_list[2] != 0.0:
-            rospy.sleep(0.1)
-        speak('I get person coord')
+        while not rospy.is_shutdown() and self.p_coord_list[0] == 0.0:
+            rospy.loginfo('waiting for coord')
+            rospy.sleep(1.0)
         userdata.coord_out = self.p_coord_list
         self.p_coord_list = [0.0, 0.0, 0.0, 0.0]
         return 'get_success'
@@ -92,31 +91,29 @@ class Navigation(smach.State):
         self.realsense_c = dynamic_reconfigure.client.Client('/move_base/local_costmap/realsense_layer')
 
     def setDynparam(self, state):
-        if state == 'set':
-            goal_tolerance_p = {'xy_goal_tolerance':0.8, 'yaw_goal_tolerance':6.2}
+        if state == 'approach':
+            goal_tolerance_p = {'xy_goal_tolerance':0.5, 'yaw_goal_tolerance':6.2}
             realsense_p = {'enabled':False}
         elif state == 'defalt':
             goal_tolerance_p = {'xy_goal_tolerance':0.15, 'yaw_goal_tolerance':0.08}
             realsense_p = {'enabled':True}
         self.dwa_c.update_configuration(goal_tolerance_p)
         self.realsense_c.update_configuration(realsense_p)
-        rospy.sleep(1.0)
+        rospy.sleep(0.5)
  
     def execute(self, userdata):
         rospy.loginfo('Executing state NAVIGATION')
         speak('start navi phase')
         coord_list = userdata.coord_in
-        self.setDynparam('set')
+        print coord_list
+        self.setDynparam('approach')
         result = navigationAC(coord_list)
         self.setDynparam('defalt')
         m6Control(0.3)
         if result == True:
-            speak("I approached the person")
             userdata.result_message.data = result
             return 'navi_success'
         else:
-            speak("I could't approach the person")
-            speak("Please come near me")
             userdata.result_message.data = result
             return 'navi_failure'
 

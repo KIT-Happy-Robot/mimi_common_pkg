@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="get_distance_pcl" name="get_distance_pcl" type="get_distance_pcl"/>
+    <node pkg="mimi_common_pkg" name="approach_person" type="approach_person.py"/>
+    <node pkg="object_fake_tf" name="object_fake_tf" type="object_fake_tf"/>
+</launch>

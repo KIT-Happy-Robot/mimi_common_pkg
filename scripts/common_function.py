@@ -30,7 +30,6 @@ def speak(phrase):
 
 # m6(首のサーボモータ)の制御
 def m6Control(value):
-    # data = Float64()
     data = Float64(value)
     rospy.sleep(0.1)
     pub_m6.publish(data)

@@ -31,13 +31,11 @@ def approachPersonAC():
     ac.wait_for_result()
 
     result = ac.get_result()
-    if result.data == 'success':
+    if result.data:
         rospy.loginfo('Success ApproachPerson')
-        ac.cancel_goal()
         return True
     else:
         rospy.loginfo('Failed ApproachPerson')
-        ac.cancel_goal()
         return False
 
 
