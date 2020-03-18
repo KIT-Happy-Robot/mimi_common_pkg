@@ -6,17 +6,19 @@
 # Date: 2019/09/18
 #--------------------------------------------------------------------
 
-# Python
 import sys
-# ROS
+
 import rospy
 import actionlib
 from std_srvs.srv import Empty
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-from mimi_common_pkg.msg import *
+from mimi_common_pkg.msg import (ApproachPersonAction, ApproachPersonGoal,
+                                 EnterTheRoomAction, EnterTheRoomGoal,
+                                 ExeActionPlanAction, ExeActionPlanGoal,
+                                 LocalizeObjectAction, LocalizeObjectGoal)
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_function import *
+from common_function import m6Control
 
 
 def approachPersonAC():
@@ -53,36 +55,30 @@ def enterTheRoomAC(receive_msg):
     result = ac.get_result()
     if result.data:
         rospy.loginfo("Success EnterTheRoom")
-        # ac.cancel_goal()
         return True
     else:
         rospy.loginfo("Failed EnterTheRoom")
-        # ac.cancel_goal()
         return False
 
 
 def exeActionPlanAC(action_list, data_list):
-        ac = actionlib.SimpleActionClient('exe_action_plan', ExeActionPlanAction)
-        ac.wait_for_server()
+    ac = actionlib.SimpleActionClient('exe_action_plan', ExeActionPlanAction)
+    ac.wait_for_server()
 
-        goal = ExeActionPlanGoal()
-        goal.action = action_list
-        goal.data = data_list
+    goal = ExeActionPlanGoal()
+    goal.action = action_list
+    goal.data = data_list
 
-        ac.send_goal(goal)
-        ac.wait_for_result()
+    ac.send_goal(goal)
+    ac.wait_for_result()
 
-        result = ac.get_result().data
-        print result
-        if result == 'success':
-            rospy.loginfo("Success ExeActionPlan")
-            result = 'none'
-            # ac.cancel_goal()
-            return True
-        else:
-            rospy.loginfo("Failed ExeActionPlan")
-            # ac.cancel_goal()
-            return False
+    result = ac.get_result().data
+    if result == 'success':
+        rospy.loginfo("Success ExeActionPlan")
+        return True
+    else:
+        rospy.loginfo("Failed ExeActionPlan")
+        return False
 
 
 def localizeObjectAC(receive_msg):
@@ -92,7 +88,6 @@ def localizeObjectAC(receive_msg):
 
     goal = LocalizeObjectGoal()
     goal.data = receive_msg
-    print goal.data
 
     ac.send_goal(goal)
     ac.wait_for_result()
@@ -100,11 +95,9 @@ def localizeObjectAC(receive_msg):
     result = ac.get_result()
     if result:
         rospy.loginfo('Success LocalizeObject')
-        #ac.cancel_goal()
         return True
     else:
         rospy.loginfo('Failed LocalizeObject')
-        # ac.cancel_goal()
         return False
 
 
@@ -113,9 +106,8 @@ def navigationAC(coord_list):
     m6Control(0.0)
     ac = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
     ac.wait_for_server()
-    # Service
     clear_costmaps = rospy.ServiceProxy('/move_base/clear_costmaps', Empty)
-    # Set Goal
+
     goal = MoveBaseGoal()
     goal.target_pose.header.frame_id = 'map'
     goal.target_pose.header.stamp = rospy.Time.now()
@@ -123,13 +115,13 @@ def navigationAC(coord_list):
     goal.target_pose.pose.position.y = coord_list[1]
     goal.target_pose.pose.orientation.z = coord_list[2]
     goal.target_pose.pose.orientation.w = coord_list[3]
-    # Costmapを消去
+
     clear_costmaps()
     rospy.wait_for_service('move_base/clear_costmaps')
     rospy.sleep(0.3)
     ac.send_goal(goal)
     state = ac.get_state()
-    count = 0# <---clear_costmapsの実行回数をカウントするための変数
+    count = 0 # clear_costmapsの実行回数をカウンタ
     while not rospy.is_shutdown():
         state = ac.get_state()
         if state == 1:
@@ -140,12 +132,12 @@ def navigationAC(coord_list):
             state = 0
             return True
         elif state == 4:
-            if count == 5:
+            if count == 3:
                 count = 0
                 rospy.loginfo('Navigation Failed')
                 return False
             else:
-                rospy.loginfo('Clear Costmaps')
+                rospy.loginfo('Clearing Costmaps')
                 clear_costmaps()
                 ac.send_goal(goal)
                 rospy.loginfo('Send Goal')

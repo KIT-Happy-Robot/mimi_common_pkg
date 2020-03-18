@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------
-# Title: オブジェクトの方向を向くためのActionServer
+# Title: オブジェクトの方を向くActionServer
 # Author: Issei Iida
 # Date: 2020/01/15
-# Memo:
 #---------------------------------------------------------------------
 
-# Pyhon
 import sys
 import time
-# ROS
+
 import rospy
+import actionlib
 from std_msgs.msg import String
+from geometry_msgs.msg import Twist
 from mimi_common_pkg.msg import LocalizeObjectAction, LocalizeObjectResult
 from mimi_common_pkg.srv import RecognizeCount
-from geometry_msgs.msg import Twist
-import actionlib
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts')
 from common_function import m6Control
@@ -39,7 +37,7 @@ class Detection():
         self.timeout = time.time() + 30
         self.twist_value.angular.z = 0.3
         while not rospy.is_shutdown() and person_flg == False:
-            person_flg = self.obj_recog(self.data.target).num
+            person_flg = bool(self.obj_recog(self.data.target).num)
             if time.time() > self.timeout:
                 self.twist_value.angular.z == 0
                 self.pub_twist.publish(self.twist_value)
@@ -55,11 +53,9 @@ class Detection():
 class LocalizeObjectAS():
     def __init__(self):
         # ActionServer
-        self.sas = actionlib.SimpleActionServer(
-                'localize_object',
-                LocalizeObjectAction,
-                execute_cb = self.execute,
-                auto_start = False)
+        self.sas = actionlib.SimpleActionServer('localize_object', LocalizeObjectAction,
+                                                execute_cb = self.execute,
+                                                auto_start = False)
         self.sas.start()
         # Value
         self.result = LocalizeObjectResult()

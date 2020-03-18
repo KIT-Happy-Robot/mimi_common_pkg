@@ -4,22 +4,19 @@
 # Title: 使用頻度が高い処理を纏めたPythonスクリプト
 # Author: Issei Iida
 # Date: 2019/09/07
-# Memo:
 #--------------------------------------------------------------------
 
-# Python
 import sys
 import time
-# ROS
+
 import rospy
 import rosparam
-# Message
 from std_msgs.msg import Float64, String
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 from gcp_texttospeech.srv import TTS
 
-# Grobal
+# Global
 pub_m6 = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 # pub_speak = rospy.Publisher('/tts', String, queue_size = 1)
@@ -27,6 +24,7 @@ tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 def speak(phrase):
     tts_srv(phrase)
+
 
 # m6(首のサーボモータ)の制御
 def m6Control(value):
@@ -39,7 +37,8 @@ def m6Control(value):
 class BaseCarrier():
     def __init__(self):
         # Publisher
-        self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size = 1)
+        self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop',
+                                         Twist, queue_size = 1)
         # Value
         self.twist_value = Twist()
 
@@ -90,4 +89,4 @@ def searchLocationName(target_name):
         print location_dict[target_name]
         return location_dict[target_name]
     else:
-        return 'faild'
+        return False

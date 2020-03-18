@@ -1,15 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #---------------------------------------------------------------------
-# Title: ActionServerNodeのデバッグ用ROSノード
+# Title: デバッグ用ROSノード
 # Author: Issei Iida
 # Date: 2019/10/11
-# Memo:
 #---------------------------------------------------------------------
 
-# Python
 import sys
-# ROS
+
 import rospy
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')

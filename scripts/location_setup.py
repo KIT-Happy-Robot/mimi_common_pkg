@@ -4,10 +4,8 @@
 # Title: Locationの名前と座標を登録するサービスサーバー
 # Author: Issei Iida
 # Date: 2020/02/04
-# Memo:
 #-----------------------------------------------------------
 
-# ROS
 import rospy
 import rosparam
 from std_msgs.msg import String

@@ -7,12 +7,10 @@
 # Memo: ドアが閉まっていることを前提条件とする
 #--------------------------------------------------------------------
 
-# Python
 import sys
-# ROS
+
 import rospy
 import actionlib
-# Message
 from std_msgs.msg import String
 from sensor_msgs.msg import LaserScan
 from mimi_common_pkg.msg import EnterTheRoomAction, EnterTheRoomResult
@@ -24,26 +22,22 @@ from common_function import speak, BaseCarrier
 class EnterTheRoomAS():
     def __init__(self):
         # ActionServer
-        self.sas = actionlib.SimpleActionServer(
-                'enter_the_room',
-                EnterTheRoomAction,
-                execute_cb = self.execute,
-                auto_start = False)
+        self.sas = actionlib.SimpleActionServer('enter_the_room', EnterTheRoomAction,
+                                                execute_cb = self.execute,
+                                                auto_start = False)
+        self.sas.start()
         # Subscriber
         self.laser_sub = rospy.Subscriber('/scan', LaserScan, self.laserCB)
- 
+        # Value
         self.bc = BaseCarrier()
         self.result = EnterTheRoomResult()
         self.front_laser_dist = 999.9
-
-        self.sas.start()
 
     def laserCB(self, receive_msg):
         self.front_laser_dist = receive_msg.ranges[359]
 
     def detection(self, receive_msg):
-        # -0.05は固定データ
-        target_distance = self.front_laser_dist + receive_msg - 0.05
+        target_distance = self.front_laser_dist + receive_msg - 0.05 # -0.05は固定データ
         speak('Please open the door')
         while self.front_laser_dist <= target_distance:
             rospy.sleep(0.1)
