@@ -63,7 +63,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
   FILES
   ManipulateSrv.srv
-  RecognizeExistence.srv
+  RecognizeCount.srv
   LocationSetup.srv
 )
 

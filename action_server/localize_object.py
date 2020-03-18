@@ -14,7 +14,7 @@ import time
 import rospy
 from std_msgs.msg import String
 from mimi_common_pkg.msg import LocalizeObjectAction, LocalizeObjectResult
-from mimi_common_pkg.srv import RecognizeExistence
+from mimi_common_pkg.srv import RecognizeCount
 from geometry_msgs.msg import Twist
 import actionlib
 
@@ -27,10 +27,10 @@ class Detection():
         # Publisher
         self.pub_twist = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size = 1)
         # Service
-        self.obj_recog = rospy.ServiceProxy('/object/recognize', RecognizeExistence)
+        self.obj_recog = rospy.ServiceProxy('/object/recognize', RecognizeCount)
         # Value
         self.twist_value = Twist()
-        self.data = RecognizeExistence()
+        self.data = RecognizeCount()
         self.timeout = 0
 
     def execute(self, receive_msg):
@@ -39,7 +39,7 @@ class Detection():
         self.timeout = time.time() + 30
         self.twist_value.angular.z = 0.3
         while not rospy.is_shutdown() and person_flg == False:
-            person_flg = self.obj_recog(self.data.target).existence
+            person_flg = self.obj_recog(self.data.target).num
             if time.time() > self.timeout:
                 self.twist_value.angular.z == 0
                 self.pub_twist.publish(self.twist_value)

@@ -73,16 +73,16 @@ class Move(smach.State):
             self.pub_location.publish(data)
             coord_list = searchLocationName(data)
             result = navigationAC(coord_list)
+            if result:
+                speak('Action success')
+                userdata.a_num_out = a_count + 1 
+                return 'move_finish'
+            else:
+                speak('Action failed')
+                userdata.a_num_out = 0 
+                return 'move_failed'
         elif name == 'approach':
             result = approachPersonAC()
-        elif result == True:
-            speak('Action success')
-            userdata.a_num_out = a_count + 1 
-            return 'move_finish'
-        elif result == False:
-            speak('Action failed')
-            userdata.a_num_out = 0 
-            return 'move_failed'
         else:
             speak('okey dokey')
             return 'move_finish'
@@ -96,7 +96,7 @@ class Mani(smach.State):
                              output_keys = ['a_num_out'])
         # Service
         self.grasp_srv = rospy.ServiceProxy('/manipulation', ManipulateSrv)
-        self.arm_srv = rospy.ServiceProxy('/change_arm_pose', ManipulateSrv)
+        self.arm_srv = rospy.ServiceProxy('/servo/arm', ManipulateSrv)
         # Param
         self.object_dict = rosparam.get_param('/object_mapping')
 
@@ -116,16 +116,17 @@ class Mani(smach.State):
             m6Control(0.3)
             result = self.arm_srv('give').result
             speak('Here you are')
-        elif result == True:
+        else:
+            return 'mani_finish'
+        rospy.loginfo('result is')
+        if result:
             speak('Action success')
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
-        elif result == False:
+        else:
             speak('Action failed')
             userdata.a_num_out = 0 
             return 'mani_failed'
-        else:
-            return 'mani_finish'
 
 
 class Search(smach.State):
