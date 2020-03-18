@@ -4,7 +4,7 @@
 # Title: ActionPlanから行動を決定して実行するアクションサーバー
 # Author: Issei Iida
 # Date: 2020/02/07
-#--------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 # Python
 import sys
@@ -22,17 +22,20 @@ from mimi_common_pkg.srv import ManipulateSrv
 from mimi_common_pkg.msg import ExeActionPlanAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
-from common_action_client import navigationAC, localizeObjectAC, approachPersonAC
 from common_function import speak, searchLocationName, m6Control 
+from common_action_client import (navigationAC, 
+                                  localizeObjectAC,
+                                  approachPersonAC)
 
 
 class DecideAction(smach.State):
     def __init__(self):
-        smach.State.__init__(self,
-                             outcomes = ['move', 'mani', 'search', 'speak', 'all_finish'],
-                             input_keys = ['goal_in', 'a_num_in', 'result_message'],
-                             output_keys = ['a_action_out', 'a_data_out',
-                                            'a_num_out', 'result_message'])
+        smach.State.__init__(
+                self,
+                outcomes = ['move', 'mani', 'search', 'speak', 'all_finish'],
+                input_keys = ['goal_in', 'a_num_in', 'result_message'],
+                output_keys = ['a_action_out', 'a_data_out',
+                               'a_num_out', 'result_message'])
         # Param
         self.action_state = rosparam.get_param('/action_state')
 
@@ -62,6 +65,16 @@ class Move(smach.State):
                              output_keys = ['a_num_out'])
         # Publisher
         self.pub_location = rospy.Publisher('/navigation/move_place', String, queue_size = 1)
+
+    def checkResult(self, userdata, result):
+        if result:
+            speak('Action success')
+            userdata.a_num_out = a_count + 1 
+            return 'move_finish'
+        else:
+            speak('Action failed')
+            userdata.a_num_out = 0 
+            return 'move_failed'
  
     def execute(self, userdata):
         rospy.loginfo('Executing state: MOVE')
@@ -86,6 +99,19 @@ class Move(smach.State):
         else:
             speak('okey dokey')
             return 'move_finish'
+<<<<<<< HEAD
+=======
+        rospy.loginfo('Check result')
+        if result:
+            speak('Action success')
+            userdata.a_num_out = a_count + 1 
+            return 'move_finish'
+        else:
+            speak('Action failed')
+            userdata.a_num_out = 0 
+            return 'move_failed'
+        checkResult()
+>>>>>>> 129c2a16e7cd8d5618a2c5c66bfc509ba2883a59
 
 
 class Mani(smach.State):
@@ -116,10 +142,15 @@ class Mani(smach.State):
             m6Control(0.3)
             result = self.arm_srv('give').result
             speak('Here you are')
+<<<<<<< HEAD
         else:
             return 'mani_finish'
         rospy.loginfo('result is')
         if result:
+=======
+        rospy.loginfo('Check result')
+        if result == True:
+>>>>>>> 129c2a16e7cd8d5618a2c5c66bfc509ba2883a59
             speak('Action success')
             userdata.a_num_out = a_count + 1 
             return 'mani_finish'
