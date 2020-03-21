@@ -16,7 +16,7 @@ from smach import StateMachine
 import smach_ros
 from smach_ros import ActionServerWrapper
 from std_msgs.msg import String
-from mimi_common_pkg.srv import ManipulateSrv, RecoginzeCount
+from mimi_common_pkg.srv import ManipulateSrv, RecognizeCount
 from mimi_common_pkg.msg import ExeActionPlanAction
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
@@ -123,20 +123,29 @@ class Search(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes = ['search_finish', 'search_failed'],
                              input_keys = ['action_in', 'data_in', 'num_in'],
-                             output_keys = ['a_num_out'])
+                             output_keys = ['a_num_out', 'obj_num_out'])
         # Service
-        self.obj_count_srv = rospy.ServiceProxy('/object/recognize',RecoginzeCount)
+        self.obj_count_srv = rospy.ServiceProxy('/object/recognize',RecognizeCount)
+        # Param
+        self.obj_map = rosparam.get_param('/object_mapping')
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: SEARCH')
         a_count = userdata.num_in
         data = userdata.data_in
+        obj = self.obj_map[data]
+        m6Control(-0.4)
+        rospy.sleep(1.5)
         speak('I search ' + data)
-        result = bool(self.obj_count_srv(data).num)
+        obj_num = self.obj_count_srv(obj).num
+        result = bool(obj_num)
         if result:
+            speak("There are " + str(obj_num) + data)
             userdata.a_num_out = a_count + 1 
+            userdata.obj_num_out = str(obj_num)
             return 'search_finish'
         else:
+            speak("I could't find " + data)
             userdata.a_num_out = 0 
             return 'search_failed'
 
@@ -144,13 +153,17 @@ class Search(smach.State):
 class Speak(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes = ['speak_finish', 'speak_failed'],
-                             input_keys = ['action_in', 'data_in', 'num_in'],
+                             input_keys = ['action_in', 'data_in',
+                                           'num_in', 'obj_num_in'],
                              output_keys = ['a_num_out'])
 
     def execute(self, userdata):
         rospy.loginfo('Executing state: SPEAK')
         a_count = userdata.num_in
         data = userdata.data_in
+        obj_num = userdata.obj_num_in
+        if obj_num == 'one':
+            return 'speak_finish'
         speak(data)
         userdata.a_num_out = a_count + 1 
         return 'speak_finish'
@@ -161,6 +174,7 @@ def main():
                           input_keys = ['goal_message', 'result_message'],
                           output_keys = ['result_message'])
     sm_top.userdata.action_num = 0
+    sm_top.userdata.obj_num = 'none'
     with sm_top:
         StateMachine.add('DECIDE_ACTION', DecideAction(),
                          transitions = {'move':'MOVE',
@@ -197,7 +211,8 @@ def main():
                          remapping = {'action_in':'action_name',
                                       'data_in':'data_name',
                                       'num_in':'action_num',
-                                      'a_num_out':'action_num'})
+                                      'a_num_out':'action_num',
+                                      'obj_num_out':'obj_num'})
 
         StateMachine.add('SPEAK', Speak(),
                          transitions = {'speak_finish':'DECIDE_ACTION',
@@ -205,7 +220,8 @@ def main():
                          remapping = {'action_in':'action_name',
                                       'data_in':'data_name',
                                       'num_in':'action_num',
-                                      'a_num_out':'action_num'})
+                                      'a_num_out':'action_num',
+                                      'obj_num_in':'obj_num'})
 
     asw = ActionServerWrapper('exe_action_plan', ExeActionPlanAction,
                               wrapped_container = sm_top,

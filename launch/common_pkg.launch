@@ -5,6 +5,6 @@
 
     <node pkg="mimi_common_pkg" name="enter_the_room" type="enter_the_room.py"/>
     <node pkg="mimi_common_pkg" name="localize_object" type="localize_object.py"/>
-    <node pkg="mimi_common_pkg" name="exe_action_plan" type="exe_action_plan.py"/>
+    <node pkg="mimi_common_pkg" name="exe_action_plan" type="exe_action_plan.py" output="screen"/>
     <include file="$(find mimi_common_pkg)/launch/approach_person.launch"/>
 </launch>
