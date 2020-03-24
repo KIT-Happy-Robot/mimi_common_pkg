@@ -106,8 +106,8 @@ class Mani(smach.State):
             result = self.arm_srv('place').result
         elif name == 'give':
             m6Control(0.3)
-            result = self.arm_srv('give').result
             speak('Here you are')
+            result = self.arm_srv('give').result
         else:
             speak('Oh my god')
             return 'mani_finish'
@@ -140,7 +140,7 @@ class Search(smach.State):
         obj_num = self.obj_count_srv(obj).num
         result = bool(obj_num)
         if result:
-            speak("There are " + str(obj_num) + data)
+            speak("I found " + str(obj_num) + data)
             userdata.a_num_out = a_count + 1 
             userdata.obj_num_out = str(obj_num)
             return 'search_finish'
