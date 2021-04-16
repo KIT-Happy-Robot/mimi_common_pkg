@@ -73,7 +73,7 @@ class Move(smach.State):
         elif name == 'approach':
             result = approachPersonAC()
         else:
-            speak('okey dokey')
+            # speak('okey dokey')
             return 'move_finish'
         if result:
             userdata.a_num_out = a_count + 1 
@@ -106,10 +106,10 @@ class Mani(smach.State):
             result = self.arm_srv('place').result
         elif name == 'give':
             m6Control(0.3)
-            speak('Here you are')
+            # speak('Here you are')
             result = self.arm_srv('give').result
         else:
-            speak('Oh my god')
+            # speak('Oh my god')
             return 'mani_finish'
         if result:
             userdata.a_num_out = a_count + 1 
