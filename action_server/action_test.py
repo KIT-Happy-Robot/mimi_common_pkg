@@ -7,7 +7,6 @@
 #---------------------------------------------------------------------
 
 import sys
-
 import rospy
 
 sys.path.insert(0, '/home/athome/catkin_ws/src/mimi_common_pkg/scripts/')
@@ -16,9 +15,18 @@ from common_function import *
 
 def main():
     rospy.loginfo('Start Test')
+    action = ['go', 'grasp', 'go', 'give']
+    data = ['desk', 'any', 'operator', 'cup']
+    result = exeActionPlanAC(action, data)
+    if result:
+        rospy.loginfo('Finish Test')
+    else:
+        rospy.loginfo('Finish Test')
+
+
     # localizeObjectAC('person')
-    approachPersonAC()
-    rospy.loginfo('Finish Test')
+    # approachPersonAC()
+    # rospy.loginfo('Finish Test')
 
 if __name__ == '__main__':
     rospy.init_node('action_test', anonymous = True)
